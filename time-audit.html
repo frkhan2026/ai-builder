@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Audit — Faisal Khan</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3352;
+    --accent: #4f8ef7;
+    --accent2: #7c5cbf;
+    --green: #34c97b;
+    --yellow: #f5c842;
+    --red: #e85c5c;
+    --orange: #f0874a;
+    --text: #e8eaf0;
+    --muted: #8a90a8;
+    --small: 0.82rem;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; }
+  .container { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  .header { border-bottom: 1px solid var(--border); padding-bottom: 28px; margin-bottom: 36px; }
+  .header h1 { font-size: 1.75rem; font-weight: 700; }
+  .header .goal { margin-top: 10px; padding: 12px 16px; background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font-size: 0.95rem; }
+  .header .goal strong { color: var(--accent); }
+  .header .meta { margin-top: 12px; color: var(--muted); font-size: var(--small); }
+
+  h2 { font-size: 0.78rem; font-weight: 700; color: var(--accent); margin: 40px 0 16px; text-transform: uppercase; letter-spacing: 0.08em; }
+  h3 { font-size: 1rem; font-weight: 600; margin-bottom: 10px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 16px; }
+
+  .stat-row { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: var(--small); gap: 12px; }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { color: var(--muted); flex: 1; }
+  .stat-value { font-weight: 600; font-size: 0.88rem; white-space: nowrap; }
+  .val-green { color: var(--green); }
+  .val-yellow { color: var(--yellow); }
+  .val-red { color: var(--red); }
+  .val-orange { color: var(--orange); }
+  .val-accent { color: var(--accent); }
+
+  .bar-group { margin-bottom: 11px; }
+  .bar-label { font-size: var(--small); color: var(--muted); margin-bottom: 3px; display: flex; justify-content: space-between; }
+  .bar-track { background: var(--surface2); border-radius: 4px; height: 9px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .tag-quick { background: #1a3a2e; color: var(--green); }
+  .tag-medium { background: #2e2a14; color: var(--yellow); }
+  .tag-big { background: #2e1e1e; color: var(--red); }
+
+  .auto-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 14px; }
+  .auto-card h3 { margin-bottom: 12px; }
+  .auto-detail { display: grid; grid-template-columns: 110px 1fr; gap: 5px 12px; font-size: var(--small); margin-top: 10px; }
+  .auto-detail .lbl { color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 0.68rem; padding-top: 2px; }
+  .auto-meta { display: flex; gap: 12px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+  .hours-badge { padding: 3px 10px; background: var(--surface2); border-radius: 20px; font-size: var(--small); color: var(--accent); font-weight: 600; }
+
+  .obs { padding: 14px 18px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9rem; border-left: 3px solid; }
+  .obs-red { background: #1e1414; border-color: var(--red); }
+  .obs-yellow { background: #1e1c14; border-color: var(--yellow); }
+  .obs-green { background: #141e19; border-color: var(--green); }
+  .obs-blue { background: #121824; border-color: var(--accent); }
+  .obs strong { display: block; margin-bottom: 4px; font-size: 0.95rem; }
+
+  .source-table { width: 100%; border-collapse: collapse; font-size: var(--small); }
+  .source-table th { text-align: left; color: var(--muted); font-weight: 700; padding: 6px 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.05em; }
+  .source-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .source-table tr:last-child td { border-bottom: none; }
+  .dot-green::before { content: "●"; color: var(--green); margin-right: 6px; }
+  .dot-yellow::before { content: "●"; color: var(--yellow); margin-right: 6px; }
+  .dot-red::before { content: "●"; color: var(--red); margin-right: 6px; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+  .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: var(--small); text-align: center; }
+
+  .align-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .align-row:last-child { border-bottom: none; }
+  .align-icon { font-size: 1.1rem; width: 24px; flex-shrink: 0; padding-top: 1px; }
+  .align-label { flex: 1; }
+  .align-note { color: var(--muted); font-size: 0.78rem; margin-top: 3px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  .metric-box { text-align: center; padding: 14px 10px; background: var(--surface2); border-radius: 8px; }
+  .metric-num { font-size: 1.8rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+  .metric-label { font-size: 0.75rem; color: var(--muted); }
+
+  .week-row { display: grid; grid-template-columns: 100px 1fr; gap: 8px 16px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: var(--small); align-items: start; }
+  .week-row:last-child { border-bottom: none; }
+  .week-date { color: var(--muted); font-weight: 600; }
+
+  .badge { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; margin-left: 6px; }
+  .badge-work { background: #152238; color: var(--accent); }
+  .badge-conf { background: #2a1a38; color: #c084fc; }
+  .badge-pto { background: #1e2a1e; color: var(--green); }
+  .badge-personal { background: #1e1e2a; color: var(--muted); }
+
+  .thread-row { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: var(--small); display: flex; gap: 12px; align-items: flex-start; }
+  .thread-row:last-child { border-bottom: none; }
+  .thread-bullet { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .thread-subject { color: var(--text); font-weight: 500; }
+  .thread-note { color: var(--muted); font-size: 0.78rem; }
+
+  .draft-badge { display: inline-block; padding: 2px 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; color: var(--muted); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  @media (max-width: 640px) { .two-col, .three-col, .four-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Time Audit — Faisal Khan</h1>
+    <div class="goal"><strong>#1 Goal:</strong> Maximize the number of clinical sites actively using NavIQ by end of 2026.</div>
+    <div class="meta">April 22, 2026 &nbsp;·&nbsp; Data window: March 22 – April 25, 2026 (5 weeks) &nbsp;·&nbsp; Sources: Outlook calendar screenshots, Outlook inbox (290 emails), Slack, Gmail &nbsp;·&nbsp; <span class="draft-badge">Draft</span></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>How I Actually Spend My Time</h2>
+
+  <!-- Big numbers -->
+  <div class="four-col" style="margin-bottom:16px;">
+    <div class="metric-box"><div class="metric-num" style="color:var(--accent);">~35</div><div class="metric-label">est. hrs/week in scheduled meetings</div></div>
+    <div class="metric-box"><div class="metric-num" style="color:var(--orange);">2</div><div class="metric-label">conferences in 5-week window (SIR + SCAI)</div></div>
+    <div class="metric-box"><div class="metric-num" style="color:var(--green);">10+</div><div class="metric-label">physicians met or engaged for NavIQ</div></div>
+    <div class="metric-box"><div class="metric-num" style="color:var(--yellow);">Daily</div><div class="metric-label">standup + 3pm protected block every weekday</div></div>
+  </div>
+
+  <!-- Calendar: Recurring meetings -->
+  <div class="card">
+    <h3>Recurring Meeting Cadence — Every Week</h3>
+    <p style="color:var(--muted);font-size:var(--small);margin-bottom:14px;">Extracted from Outlook calendar. These appear in every non-PTO, non-conference week. The standup and 3pm block were not visible in any prior data source — this is new from the calendar screenshots.</p>
+    <div class="two-col">
+      <div>
+        <p style="font-size:var(--small);font-weight:700;margin-bottom:8px;color:var(--text);">Daily</p>
+        <div class="stat-row"><span class="stat-label">Morning Standup / Huddle Zoom</span><span class="stat-value val-red">8am · every weekday · ~30 min · ~2.5 hrs/week</span></div>
+        <div class="stat-row"><span class="stat-label">(No subject) — protected daily block</span><span class="stat-value val-yellow">3–4pm · every weekday · likely personal commitment</span></div>
+        <p style="font-size:var(--small);font-weight:700;margin-top:12px;margin-bottom:8px;color:var(--text);">Monday</p>
+        <div class="stat-row"><span class="stat-label">Catheter Weekly Team</span><span class="stat-value">11am · ~60 min</span></div>
+        <div class="stat-row"><span class="stat-label">NavIQ Commercial Readiness</span><span class="stat-value val-accent">1pm · ~60 min · cross-functional</span></div>
+        <p style="font-size:var(--small);font-weight:700;margin-top:12px;margin-bottom:8px;color:var(--text);">Tuesday</p>
+        <div class="stat-row"><span class="stat-label">Marketing / Reg check-in</span><span class="stat-value">9am · ~30 min</span></div>
+        <div class="stat-row"><span class="stat-label">Console Weekly (Praveen)</span><span class="stat-value">~3pm · ~60 min</span></div>
+        <div class="stat-row"><span class="stat-label">Marketing / Field Catch-Up</span><span class="stat-value">2pm · ~60 min</span></div>
+      </div>
+      <div>
+        <p style="font-size:var(--small);font-weight:700;margin-bottom:8px;color:var(--text);">Thursday</p>
+        <div class="stat-row"><span class="stat-label">Akura Sr. Staff Meeting (Ruby Grote)</span><span class="stat-value">9am · ~60 min</span></div>
+        <div class="stat-row"><span class="stat-label">Faisal / Kavi 1:1</span><span class="stat-value">11am · ~30 min</span></div>
+        <div class="stat-row"><span class="stat-label">Cerevia Neuro advisory board</span><span class="stat-value val-orange">12pm · ~60 min · every Thursday</span></div>
+        <p style="font-size:var(--small);font-weight:700;margin-top:12px;margin-bottom:8px;color:var(--text);">Friday</p>
+        <div class="stat-row"><span class="stat-label">Clinical Field Specialist meeting</span><span class="stat-value">11am · ~60 min</span></div>
+        <div class="stat-row"><span class="stat-label">Jumma (Friday prayer)</span><span class="stat-value">1pm · ~90 min</span></div>
+        <p style="font-size:var(--small);font-weight:700;margin-top:12px;margin-bottom:8px;color:var(--text);">Weekly total (typical non-conference week)</p>
+        <div class="stat-row"><span class="stat-label">Standups + recurring Akura meetings</span><span class="stat-value val-red">~12–14 hrs/week</span></div>
+        <div class="stat-row"><span class="stat-label">With ad hoc meetings added</span><span class="stat-value val-red">~16–20 hrs/week</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week-by-week breakdown -->
+  <div class="card">
+    <h3>Week-by-Week — What Actually Happened</h3>
+    <p style="color:var(--muted);font-size:var(--small);margin-bottom:14px;">From Outlook calendar screenshots. Non-recurring meetings only (recurring cadence above applies to every week unless noted).</p>
+
+    <div class="week-row">
+      <div class="week-date">Mar 22–28<span class="badge badge-work">Field Training</span></div>
+      <div>Clinical Field Specialist Training (entire week, Ruby Grote + Margaret Machado) · Akura Field Training multi-day · Dr. Mona Ranac (KOL) · NavIQ Software Phase II · Regulatory meeting · Katana Case · Shoebox check-in · KOL Session · SIR Prep · Akura <> Dr. Bill Dixon (pre-visit) · NavIQ Software Phase II · Welcome lunch (new hire) · Standups daily</div>
+    </div>
+    <div class="week-row">
+      <div class="week-date">Mar 30 – Apr 3<span class="badge badge-work">Conf prep</span></div>
+      <div>1H 2026 Akura Conference Presence planning · SIR Planning Check-In · Marketing/Field Catch-Up · Medicos Hirata/Akura Meeting (Japan) · Review CRM and Zoho · Marketing Materials review · Akura <> Dr. Venu Vadla · Faisal/Kei discuss CTEPH · Akura Sr. Staff Meeting · Faisal/Kavi 1:1 · NavIQ Ops outstanding items · NavIQ – prep for physician · <strong>Akura Board Final Prep</strong> (Kavi Vyas) · Standups daily</div>
+    </div>
+    <div class="week-row">
+      <div class="week-date">Apr 6–10<span class="badge badge-conf">Board + SIR</span></div>
+      <div><strong>Q1 2026 Board of Directors Meeting</strong> (Ruby Grote, Apr 6) · Faisal/Marlene 1:1 · Marketing/Reg check-in · Final SIR prep meeting · Console weekly · Medicos Hirata/Akura Meeting (2nd) · Faisal/Danyel 1:1 · <strong>Faisal PTO Thu–Fri (Apr 9–10)</strong> · SIR conference starts Sat Apr 11</div>
+    </div>
+    <div class="week-row">
+      <div class="week-date">Apr 12–18<span class="badge badge-conf">SIR Toronto</span></div>
+      <div><strong>SIR Conference, Toronto</strong> (Apr 11–14) — SIR Dinner reservations: Azure, Taverna Mercatto, Oretta Downtown · Back in office Apr 14: SCAI meeting prep, Zoom Interview (hiring), Block for Encompass Vascular · Apr 15: Text with Vikas, Block for Leland, Project Shoebox, Conferences and Demos · Apr 16: Hiring debrief (JVE), Faisal/Kavi 1:1, Katana discussion, <strong>VIP Visit Dr. Dixon, Dinner with Dixon/Amr/Kavi</strong> · Apr 17: <strong>Dr. Dixon Cath Lab visit (Walid, Margaret), Akura ↔ Kenny Rosenfield</strong>, Faisal/Colleen</div>
+    </div>
+    <div class="week-row">
+      <div class="week-date">Apr 20–22<span class="badge badge-conf">Pre-SCAI</span></div>
+      <div>Apr 20: Azeem <> Akura catch-up, Catch-up on video, Catheter Weekly, NavIQ Commercial Readiness, Review SCAI materials, Console meeting · Apr 21: <strong>Flight 608 to Toronto (SCAI)</strong> · Apr 22: <strong>Mount Sinai NavIQ Overview</strong>, Dove Console Packaging</div>
+    </div>
+    <div class="week-row" style="border-bottom:none;">
+      <div class="week-date">Apr 23–25<span class="badge badge-conf">SCAI Montréal</span></div>
+      <div>Apr 23: <strong>Dr. Young ↔ Akura, Vikas/Akura at SCAI ✓</strong>, PERT Workshop on PE Treatment, Sr. Staff Meeting (conference room), SCAI dinners · Apr 24: <strong>Dr. Toma visit, Hold for Jay Giri ↔ Akura, Sahil Parikh meeting</strong>, Fellowship Summit Satellite, Jumma, flight home</div>
+    </div>
+  </div>
+
+  <!-- KOL engagement map -->
+  <div class="card">
+    <h3>Physician / KOL Engagements — 5-Week Window</h3>
+    <p style="color:var(--muted);font-size:var(--small);margin-bottom:14px;">Every confirmed physician touchpoint across calendar, email, and Slack. This is the clearest signal of site activation activity.</p>
+    <div class="two-col">
+      <div>
+        <div class="stat-row"><span class="stat-label">Dr. Bill Dixon</span><span class="stat-value val-green">VIP visit Apr 16–17 · cath lab + dinner</span></div>
+        <div class="stat-row"><span class="stat-label">Kenny Rosenfield</span><span class="stat-value val-green">Apr 17 call + SCAI PE Sessions email</span></div>
+        <div class="stat-row"><span class="stat-label">Dr. Young</span><span class="stat-value val-green">Apr 23 at SCAI · confirmed meeting</span></div>
+        <div class="stat-row"><span class="stat-label">Vikas</span><span class="stat-value val-green">Apr 23 at SCAI ✓ (after months of silence)</span></div>
+        <div class="stat-row"><span class="stat-label">Dr. Toma</span><span class="stat-value val-green">Apr 24 at SCAI · Akura visit</span></div>
+        <div class="stat-row"><span class="stat-label">Jay Giri</span><span class="stat-value val-green">Apr 24 at SCAI · hold on calendar</span></div>
+        <div class="stat-row"><span class="stat-label">Sahil Parikh</span><span class="stat-value val-green">Apr 24 at SCAI · confirmed meeting</span></div>
+      </div>
+      <div>
+        <div class="stat-row"><span class="stat-label">Sanjum Sethi</span><span class="stat-value val-green">SCAI dinner confirmed</span></div>
+        <div class="stat-row"><span class="stat-label">Dr. Venu Vadla</span><span class="stat-value val-accent">Apr 1 · Akura meeting</span></div>
+        <div class="stat-row"><span class="stat-label">Dr. Mona Ranac</span><span class="stat-value val-accent">Mar 23 · KOL meeting</span></div>
+        <div class="stat-row"><span class="stat-label">Taisei Kobayashi (Penn Medicine)</span><span class="stat-value val-accent">SCAI outreach confirmed</span></div>
+        <div class="stat-row"><span class="stat-label">Eric Secemsky</span><span class="stat-value val-accent">SCAI outreach confirmed</span></div>
+        <div class="stat-row"><span class="stat-label">Samuel Horr (HCA)</span><span class="stat-value val-accent">SCAI schedule confirmed</span></div>
+        <div class="stat-row"><span class="stat-label">Mount Sinai (team)</span><span class="stat-value val-accent">Apr 22 overview call · site in motion</span></div>
+        <div class="stat-row"><span class="stat-label">Keiichi Kubota / Medicos Hirata</span><span class="stat-value val-accent">Japan · 3 meetings + emails</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email + Slack -->
+  <div class="two-col">
+    <div class="card">
+      <h3>Top Email Senders — Akura Inbox</h3>
+      <p style="color:var(--muted);font-size:var(--small);margin-bottom:12px;">290 inbox emails over 30 days. faisal@akuramed.com.</p>
+      <div class="stat-row"><span class="stat-label">Zoom (meeting notifications)</span><span class="stat-value val-red">37× — confirms high meeting volume</span></div>
+      <div class="stat-row"><span class="stat-label">Ruby Grote — conference logistics</span><span class="stat-value val-orange">16×</span></div>
+      <div class="stat-row"><span class="stat-label">Margaret Machado — field/sales</span><span class="stat-value val-orange">12×</span></div>
+      <div class="stat-row"><span class="stat-label">Theresa Brandner — regulatory</span><span class="stat-value">8×</span></div>
+      <div class="stat-row"><span class="stat-label">Rick / ProToVu — video agency</span><span class="stat-value">7×</span></div>
+      <div class="stat-row"><span class="stat-label">Colleen Kestner — NavIQ / field</span><span class="stat-value">7×</span></div>
+      <div class="stat-row"><span class="stat-label">Kavi Vyas — engineering</span><span class="stat-value">5×</span></div>
+      <div class="stat-row"><span class="stat-label">Keiichi Kubota — Japan distributor</span><span class="stat-value val-green">4×</span></div>
+      <div class="stat-row"><span class="stat-label">Enlil.io — doc control system</span><span class="stat-value">4×</span></div>
+    </div>
+    <div class="card">
+      <h3>Key Active Email Threads</h3>
+      <div class="thread-row"><span class="thread-bullet">●</span><div><div class="thread-subject">Mount Sinai Follow Up</div><div class="thread-note">Active Apr 21–22. Call Apr 23. Colleen, Amr, Kavi, Rob Edesess all looped in. <strong style="color:var(--green);">Site activation in progress.</strong></div></div></div>
+      <div class="thread-row"><span class="thread-bullet">●</span><div><div class="thread-subject">NavIQ Sales Presentation MKT-02601 Rev B</div><div class="thread-note">3 Enlil DCO cycles (04745 → 04814 → 04819) + SharePoint comments. 2-week approval cycle for one deck.</div></div></div>
+      <div class="thread-row"><span class="thread-bullet">●</span><div><div class="thread-subject">Japan Distributor — Keiichi Kubota / Medicos Hirata</div><div class="thread-note">CTEPH discussion Apr 1. 3 meetings + 4 emails. Active international expansion thread.</div></div></div>
+      <div class="thread-row"><span class="thread-bullet">●</span><div><div class="thread-subject">NavIQ Breakthrough in EU (Theresa, Apr 17)</div><div class="thread-note">EU regulatory milestone. Opens new site activation market.</div></div></div>
+      <div class="thread-row"><span class="thread-bullet">●</span><div><div class="thread-subject">Draft NavIQ Subscription Agreement</div><div class="thread-note">Rob Edesess circulated template Apr 13. Commercial readiness signal.</div></div></div>
+      <div class="thread-row" style="border-bottom:none;"><span class="thread-bullet">●</span><div><div class="thread-subject">ProToVu — NavIQ video, animation, invoices</div><div class="thread-note">7 emails. Perfusion animation, app video review, billing. Active vendor management.</div></div></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>Key Diagnostics</h2>
+
+  <div class="three-col" style="margin-bottom:14px;">
+    <div class="card">
+      <h3>Meeting Load vs. Deep Work</h3>
+      <div class="stat-row"><span class="stat-label">Daily standup</span><span class="stat-value val-red">8am · 5×/week · ~2.5 hrs/week</span></div>
+      <div class="stat-row"><span class="stat-label">Recurring Akura meetings/week</span><span class="stat-value val-red">~12–14 hrs</span></div>
+      <div class="stat-row"><span class="stat-label">With ad hoc meetings</span><span class="stat-value val-red">~16–20 hrs/week</span></div>
+      <div class="stat-row"><span class="stat-label">Protected 3pm block (daily)</span><span class="stat-value val-yellow">Hard stop most days</span></div>
+      <div class="stat-row"><span class="stat-label">Actual deep work window</span><span class="stat-value val-orange">~10am–12pm and 2–3pm at best</span></div>
+      <div class="stat-row"><span class="stat-label">Conference weeks (SIR + SCAI)</span><span class="stat-value">2 of 5 weeks = travel/intensive</span></div>
+      <p style="font-size:var(--small);color:var(--muted);margin-top:10px;">With a daily standup at 8am, recurring meetings filling Mon–Thu, and a daily hard stop around 3pm, the true deep work window is roughly 10am–12pm. That's 2 hours/day maximum.</p>
+    </div>
+
+    <div class="card">
+      <h3>Context Switching</h3>
+      <div class="stat-row"><span class="stat-label">Communication platforms active</span><span class="stat-value val-red">Slack + Outlook + PPT comments</span></div>
+      <div class="stat-row"><span class="stat-label">Document review systems</span><span class="stat-value val-red">Enlil + SharePoint + email (3 systems)</span></div>
+      <div class="stat-row"><span class="stat-label">Active Slack DM threads</span><span class="stat-value val-orange">7 concurrent tracked</span></div>
+      <div class="stat-row"><span class="stat-label">Concurrent initiatives</span><span class="stat-value">SCAI, EuroPCR, Japan, Mount Sinai, NavIQ reg, hiring</span></div>
+      <div class="stat-row"><span class="stat-label">Worst switching day</span><span class="stat-value val-red">Apr 15 — 7 named meetings + Slack + email</span></div>
+      <p style="font-size:var(--small);color:var(--muted);margin-top:10px;">Apr 15 had: Text with Vikas, Leland block, Inflammatix block, Marketing/Reg weekly, NavIQ Commercial Readiness, Project Shoebox, Conferences and Demos, Console meeting — 8 context shifts in one day.</p>
+    </div>
+
+    <div class="card">
+      <h3>Reactive vs. Proactive</h3>
+      <div class="stat-row"><span class="stat-label">Physician outreach (pre-SCAI)</span><span class="stat-value val-green">Proactive — 10+ KOLs engaged</span></div>
+      <div class="stat-row"><span class="stat-label">Conference prep posture</span><span class="stat-value val-green">Already planning EuroPCR</span></div>
+      <div class="stat-row"><span class="stat-label">KOL hosting (Dixon, Rosenfield)</span><span class="stat-value val-green">Proactive — high-leverage</span></div>
+      <div class="stat-row"><span class="stat-label">Regulatory review wait</span><span class="stat-value val-orange">3 DCO cycles — reactive to system</span></div>
+      <div class="stat-row"><span class="stat-label">Conference logistics</span><span class="stat-value val-red">Ruby's emails still pull Faisal in</span></div>
+      <div class="stat-row"><span class="stat-label">Cerevia board (weekly)</span><span class="stat-value val-red">Every Thursday — takes the slot</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Top 3 Time Drains — Named Specifically</h3>
+    <div class="align-row">
+      <div class="align-icon">🔴</div>
+      <div>
+        <div class="align-label"><strong>1. The 3pm wall — every single weekday</strong></div>
+        <div class="align-note">The (No subject) recurring daily block at 3–4pm appears on literally every weekday in the calendar. Combined with the 8am standup as a hard start and the Jumma commitment every Friday afternoon, the effective Akura work window is roughly 8:30am–3pm — about 6.5 hours — with 2.5 of those already consumed by recurring meetings. That leaves ~4 hours of discretionary time per day on a good day. It's not a time management problem; it's a structural constraint to design around.</div>
+      </div>
+    </div>
+    <div class="align-row">
+      <div class="align-icon">🔴</div>
+      <div>
+        <div class="align-label"><strong>2. Three-system regulatory review for every NavIQ document</strong></div>
+        <div class="align-note">The NavIQ Sales Presentation (MKT-02601 Rev B) required 3 Enlil DCO cycles (DCO-04745, DCO-04814, DCO-04819) plus SharePoint comment rounds with Theresa and Rob over two weeks — all just to approve one deck before SCAI. This pattern will repeat for every conference deliverable. The process is the bottleneck, and it's completely invisible to Faisal until a deadline is missed.</div>
+      </div>
+    </div>
+    <div class="align-row" style="border-bottom:none;">
+      <div class="align-icon">🟡</div>
+      <div>
+        <div class="align-label"><strong>3. Cerevia Neuro advisory board consumes every Thursday at noon</strong></div>
+        <div class="align-note">Cerevia appears every single Thursday at 12pm — not biweekly as initially estimated. That's ~4 hours/month for an advisory board with no connection to NavIQ site activation. Combined with the Thursday Akura Sr. Staff at 9am and Faisal/Kavi 1:1 at 11am, Thursday is the most meeting-dense day of the week with zero discretionary time before the 3pm hard stop.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>Goal Alignment — Maximize Sites on NavIQ by End of 2026</h2>
+
+  <div class="obs obs-blue">
+    <strong>Updated read: the goal alignment is strong — but the window is narrow.</strong>
+    With the full calendar visible, Faisal is spending the right time on the right things: 10+ physician engagements in 5 weeks, two conferences, a Board meeting, and active site work (Mount Sinai). The problem isn't misalignment. It's that the effective work window is ~4 hrs/day, and 3 of those days per week lose the noon slot to Cerevia. The highest-leverage move is protecting that window — not changing what goes in it.
+  </div>
+
+  <div class="card">
+    <div class="align-row">
+      <div class="align-icon">✅</div>
+      <div>
+        <div class="align-label"><strong>SCAI physician pipeline — 10+ KOLs in 5 weeks</strong></div>
+        <div class="align-note">Dr. Dixon (VIP), Rosenfield, Dr. Young, Vikas (finally!), Dr. Toma, Jay Giri, Sahil Parikh, Sanjum Sethi, Kobayashi, Dr. Venu Vadla, Dr. Mona Ranac. This is exceptional physician engagement volume. The pre-SCAI groundwork was done right.</div>
+      </div>
+    </div>
+    <div class="align-row">
+      <div class="align-icon">✅</div>
+      <div>
+        <div class="align-label"><strong>Mount Sinai — site activation in motion as of Apr 22</strong></div>
+        <div class="align-note">Apr 22 NavIQ Overview call, Apr 23 follow-up scheduled. Colleen, Amr, Kavi, Rob all involved. This is the clearest goal-state event in the data — a named institution with a named meeting and a team behind it.</div>
+      </div>
+    </div>
+    <div class="align-row">
+      <div class="align-icon">✅</div>
+      <div>
+        <div class="align-label"><strong>NavIQ Commercial Readiness — weekly cross-functional anchor</strong></div>
+        <div class="align-note">Every Monday. Broad attendee list (Kavi, Praveen, Theresa, Rob, Greg, Eric, Raji, Colleen). This is the right meeting to have — commercial trajectory is being stewarded weekly.</div>
+      </div>
+    </div>
+    <div class="align-row">
+      <div class="align-icon">✅</div>
+      <div>
+        <div class="align-label"><strong>Japan distributor selection active (Medicos Hirata / CardioPoint)</strong></div>
+        <div class="align-note">3 meetings in 5 weeks including CTEPH discussion. International site activation in parallel with US.</div>
+      </div>
+    </div>
+    <div class="align-row">
+      <div class="align-icon">✅</div>
+      <div>
+        <div class="align-label"><strong>NavIQ EU regulatory breakthrough (Theresa, Apr 17)</strong></div>
+        <div class="align-note">New market unlocked. If this progresses, it doubles the addressable site activation opportunity.</div>
+      </div>
+    </div>
+    <div class="align-row">
+      <div class="align-icon">⚠️</div>
+      <div>
+        <div class="align-label"><strong>Conference logistics overhead still pulls Faisal in</strong></div>
+        <div class="align-note">Ruby Grote 16 emails. SIR dinner reservations (3 venues), booth setup, badge logistics — all in Faisal's inbox. He should see a weekly summary, not individual logistics decisions.</div>
+      </div>
+    </div>
+    <div class="align-row">
+      <div class="align-icon">⚠️</div>
+      <div>
+        <div class="align-label"><strong>Post-SCAI follow-up system doesn't exist yet</strong></div>
+        <div class="align-note">10+ physicians met. SCAI ends Apr 25. The 2-week post-conference window is when site activation conversations either advance or stall. There is no visible system to capture this — it will default to memory and manual outreach.</div>
+      </div>
+    </div>
+    <div class="align-row">
+      <div class="align-icon">❌</div>
+      <div>
+        <div class="align-label"><strong>Cerevia every Thursday costs the best work slot</strong></div>
+        <div class="align-note">12pm Thursday every week. No connection to NavIQ. Combined with Sr. Staff at 9am and Faisal/Kavi at 11am, Thursday is effectively full by noon. Worth evaluating whether the Cerevia commitment matches what it pays in time.</div>
+      </div>
+    </div>
+    <div class="align-row" style="border-bottom:none;">
+      <div class="align-icon">❓</div>
+      <div>
+        <div class="align-label"><strong>Project Shoebox — what is it?</strong></div>
+        <div class="align-note">Appears Apr 15 (calendar) and Mar 26 (Shoebox check-in). Faisal is the named organizer. No other data source explains it. If it's a major initiative, it should appear in this analysis.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>Automation Opportunities <span class="draft-badge">Draft</span></h2>
+  <p style="color:var(--muted);font-size:var(--small);margin-bottom:20px;">Ranked by: hours reclaimed × proximity to the NavIQ site activation goal. All grounded in specific patterns observed in calendar, Outlook, and Slack.</p>
+
+  <div class="auto-card">
+    <h3>#1 — Post-SCAI follow-up happens without Faisal thinking about it</h3>
+    <div class="auto-detail">
+      <span class="lbl">Today</span>
+      <span class="val">10+ physicians met at SCAI (Apr 23–25). After the conference ends, follow-up defaults to Faisal's memory, fragmented across the Slack thread where he's already juggling 7 conversations. Each physician needs a different next step. The best window — days after the conference — is also when Faisal is exhausted and catching up on email backlog.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">Before SCAI: agent builds a physician contact sheet (name, institution, conversation goal) from the calendar events and SCAI email threads. After each meeting: Faisal dictates a 30-second Slack message ("Rosenfield — interested in NavIQ pilot, follow up in 2 weeks"). Agent sends a personalized follow-up email within 48 hours, creates an Asana task with deadline, and logs the physician in the site pipeline. Monday digest shows all SCAI contacts with status.</span>
+      <span class="lbl">Trigger</span>
+      <span class="val">Slack message to a designated channel → agent classifies, drafts email, creates task</span>
+    </div>
+    <div class="auto-meta"><span class="tag tag-quick">Quick Win</span><span class="hours-badge">~3 hrs/week reclaimed post-conference</span><span style="font-size:var(--small);color:var(--green);">⬆ Directly drives site activation</span></div>
+  </div>
+
+  <div class="auto-card">
+    <h3>#2 — NavIQ document review is submitted, tracked, and followed up automatically</h3>
+    <div class="auto-detail">
+      <span class="lbl">Today</span>
+      <span class="val">The NavIQ Sales Presentation went through 3 Enlil DCO cycles (04745 → 04814 → 04819) plus SharePoint comment rounds with Theresa and Rob over 2 weeks. Every conference deliverable has this tax. Faisal manually submits, waits, responds to comments across 3 platforms, and chases completion — often against a conference deadline.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">When a doc is flagged "ready for reg review" in Slack or email, agent: (1) sends a formatted request to Theresa and Rob with document link, checklist, and hard deadline, (2) monitors Enlil DCO status emails and posts updates to a dedicated #reg-review Slack channel, (3) sends a 24-hr nudge if approval is pending, (4) confirms completion. Faisal only touches the document — not the process around it.</span>
+      <span class="lbl">Trigger</span>
+      <span class="val">"ready for reg" phrase in Slack → full review workflow initiated</span>
+    </div>
+    <div class="auto-meta"><span class="tag tag-medium">Medium Lift</span><span class="hours-badge">~2 hrs/week reclaimed</span><span style="font-size:var(--small);color:var(--accent);">Unblocks every conference deliverable</span></div>
+  </div>
+
+  <div class="auto-card">
+    <h3>#3 — Site activation status is always visible, never reconstructed from memory</h3>
+    <div class="auto-detail">
+      <span class="lbl">Today</span>
+      <span class="val">Mount Sinai is active. Japan is active. 10+ SCAI physicians are warm leads. Encompass Vascular had a visit Apr 14. Each lives in a separate thread. No one can see the full pipeline without asking Faisal, and Faisal has to reconstruct it each time.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">Monday 7am agent scans Outlook and Slack for site/physician mentions, extracts status signals, and posts a site pipeline view to Slack: institution, last contact, current status (warm / active / stalled / converted), next action + owner. Faisal corrects in 2 minutes. Over time it learns the vocabulary of the pipeline. CCO gets a monthly version automatically.</span>
+      <span class="lbl">Trigger</span>
+      <span class="val">Cron: Monday 7am PT → scan → post to Slack</span>
+    </div>
+    <div class="auto-meta"><span class="tag tag-medium">Medium Lift</span><span class="hours-badge">~2 hrs/week status overhead</span><span style="font-size:var(--small);color:var(--green);">⬆ Makes #1 goal visible in real time</span></div>
+  </div>
+
+  <div class="auto-card">
+    <h3>#4 — Conference logistics run without Faisal in every thread</h3>
+    <div class="auto-detail">
+      <span class="lbl">Today</span>
+      <span class="val">Ruby Grote sent 16 emails in 30 days: hotel check-in, badge pickup, booth setup, Know-Before-You-Go, dinner reservations (Azure, Taverna Mercatto, Oretta Downtown for SIR), ProExhibits final documents, SCAI hotel update, attendee list. Faisal is active or CC'd in all of them. This will repeat at EuroPCR.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">Conference prep agent activates 4 weeks before each conference. Generates a logistics checklist, assigns Ruby as logistics owner, and gives her a standing Monday brief on open items. Faisal gets one weekly summary — not 16 individual emails. Ruby makes logistics decisions autonomously within the brief; Faisal only reviews physician agenda decisions.</span>
+      <span class="lbl">Trigger</span>
+      <span class="val">Calendar event name matches conference list → agent initializes and assigns roles</span>
+    </div>
+    <div class="auto-meta"><span class="tag tag-medium">Medium Lift</span><span class="hours-badge">~2 hrs/week in conference peaks</span></div>
+  </div>
+
+  <div class="auto-card">
+    <h3>#5 — ProToVu video reviews and invoices have a structured workflow</h3>
+    <div class="auto-detail">
+      <span class="lbl">Today</span>
+      <span class="val">Rick at ProToVu sent 7 emails in 30 days: perfusion animation updates, NavIQ app video review requests, invoice follow-ups. Each requires Faisal to watch, give notes, track billing. High-friction vendor relationship for what should be a repeatable production workflow.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">Each ProToVu project gets a structured brief doc with deliverables, review deadline, feedback format, and billing tracker. When Rick sends an update, agent routes it to the doc and sends Faisal a 3-sentence summary with one decision point (approve / request changes). Invoices auto-log for A/P. Faisal stays informed without being in the inbox.</span>
+      <span class="lbl">Trigger</span>
+      <span class="val">Email from rick@protovu.com → agent categorizes (update / review / invoice) → routes to workflow</span>
+    </div>
+    <div class="auto-meta"><span class="tag tag-quick">Quick Win</span><span class="hours-badge">~1 hr/week reclaimed</span></div>
+  </div>
+
+  <div class="auto-card">
+    <h3>#6 — Daily brief becomes a NavIQ command center, not a to-do list</h3>
+    <div class="auto-detail">
+      <span class="lbl">Today</span>
+      <span class="val">Daily brief already exists (faisalrkhan+cc@gmail.com). It surfaces top-of-mind items. It doesn't include: site pipeline status, outstanding reg reviews, conference physician agenda, ProToVu pending reviews, or Japan distributor cadence. Faisal starts the day without a consolidated view of what moves the NavIQ needle today.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">Expand the existing brief: (1) Sites — who needs follow-up today, (2) Reg — outstanding DCOs + deadlines, (3) Conference — days to EuroPCR + open prep items, (4) Physician pipeline — SCAI contacts status, (5) Japan — Kubota thread status. Delivered 6:50am PT so Faisal reads it before the 8am standup.</span>
+      <span class="lbl">Trigger</span>
+      <span class="val">Cron 6:50am PT → pull Outlook + Slack + calendar → assemble → send email</span>
+    </div>
+    <div class="auto-meta"><span class="tag tag-quick">Quick Win</span><span class="hours-badge">~1 hr/week overhead eliminated</span><span style="font-size:var(--small);color:var(--green);">⬆ NavIQ goal is the first thing Faisal sees</span></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>Data Sources</h2>
+  <div class="card">
+    <table class="source-table">
+      <thead><tr><th>Source</th><th>Status</th><th>Date Range</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="dot-green">Outlook Calendar — faisal@akuramed.com (screenshots)</td><td>✓ Used</td><td>Mar 22 – Apr 25, 2026</td><td>5 weeks of Work Week view screenshots. All events extracted manually. Most complete calendar source — includes personal (Google sync) + Akura work + conference events.</td></tr>
+        <tr><td class="dot-green">Outlook Inbox — faisal@akuramed.com</td><td>✓ Used</td><td>Mar 22 – Apr 22, 2026</td><td>290 inbox emails via PowerShell COM. Top senders, subject lines, key threads. Sent items and calendar not cached locally — not queryable.</td></tr>
+        <tr><td class="dot-green">Slack — shifamed.slack.com (Akura workspace)</td><td>✓ Used</td><td>Apr 3 – Apr 22, 2026</td><td>40 messages sampled (20 sent, 20 received). DM thread patterns. Channel-level history not pulled.</td></tr>
+        <tr><td class="dot-green">Gmail — faisalrkhan@gmail.com</td><td>✓ Used</td><td>Mar 22 – Apr 22, 2026</td><td>Personal account. Supplemental. Leland coaching, Cerevia Neuro, and some SCAI coordination visible here.</td></tr>
+        <tr><td class="dot-red">Windows App Usage (ActivitiesCache.db)</td><td>⛔ Unavailable</td><td>—</td><td>DB copied to C:\temp\activities.db. No SQLite runtime. <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;">winget install Python.Python.3</code> would unlock this.</td></tr>
+        <tr><td class="dot-red">Chrome Browser History</td><td>⛔ Unavailable</td><td>—</td><td>DB copied to C:\temp\chrome_history.db. Same SQLite dependency. Domain analysis not possible.</td></tr>
+        <tr><td class="dot-yellow">Outlook Calendar (live query)</td><td>⚠️ Not cached</td><td>—</td><td>PowerShell COM returned 0 items — new Outlook doesn't cache locally. Screenshots used as workaround.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">Time Audit — April 22, 2026 &nbsp;|&nbsp; Part of my AI Builder Automation Portfolio</div>
+
+</div>
+</body>
+</html>

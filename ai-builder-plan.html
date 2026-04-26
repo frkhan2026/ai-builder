@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Builder Plan — Faisal Khan</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3352;
+    --accent: #4f8ef7;
+    --accent2: #7c5cbf;
+    --green: #34c97b;
+    --yellow: #f5c842;
+    --red: #e85c5c;
+    --orange: #f0874a;
+    --text: #e8eaf0;
+    --muted: #8a90a8;
+    --small: 0.82rem;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; }
+  .container { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  .header { border-bottom: 1px solid var(--border); padding-bottom: 28px; margin-bottom: 36px; }
+  .header h1 { font-size: 1.75rem; font-weight: 700; }
+  .header .goal { margin-top: 10px; padding: 12px 16px; background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; font-size: 0.95rem; }
+  .header .goal strong { color: var(--accent); }
+  .header .meta { margin-top: 12px; color: var(--muted); font-size: var(--small); }
+
+  h2 { font-size: 0.78rem; font-weight: 700; color: var(--accent); margin: 40px 0 16px; text-transform: uppercase; letter-spacing: 0.08em; }
+  h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 16px; }
+
+  .stat-row { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: var(--small); gap: 12px; }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { color: var(--muted); flex: 1; }
+  .stat-value { font-weight: 600; font-size: 0.88rem; white-space: nowrap; }
+  .val-green { color: var(--green); }
+  .val-yellow { color: var(--yellow); }
+  .val-red { color: var(--red); }
+  .val-orange { color: var(--orange); }
+  .val-accent { color: var(--accent); }
+
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .tag-quick { background: #1a3a2e; color: var(--green); }
+  .tag-medium { background: #2e2a14; color: var(--yellow); }
+  .tag-big { background: #2e1e1e; color: var(--red); }
+
+  .hours-badge { padding: 3px 10px; background: var(--surface2); border-radius: 20px; font-size: var(--small); color: var(--accent); font-weight: 600; }
+  .status-badge { padding: 3px 10px; background: var(--surface2); border-radius: 20px; font-size: var(--small); color: var(--muted); font-weight: 600; border: 1px solid var(--border); }
+
+  .auto-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px 24px; margin-bottom: 14px; }
+  .auto-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+  .auto-card-header h3 { margin-bottom: 0; flex: 1; }
+  .auto-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .auto-detail { display: grid; grid-template-columns: 120px 1fr; gap: 6px 14px; font-size: var(--small); }
+  .auto-detail .lbl { color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 0.68rem; padding-top: 3px; }
+  .auto-detail .val { color: var(--text); padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .auto-detail .val:last-child { border-bottom: none; padding-bottom: 0; }
+  .auto-detail .lbl:last-of-type + .val { border-bottom: none; padding-bottom: 0; }
+
+  .goal-tag { font-size: var(--small); color: var(--green); }
+  .rank-num { font-size: 1.4rem; font-weight: 800; color: var(--surface2); line-height: 1; margin-right: 10px; flex-shrink: 0; align-self: center; }
+
+  .insight-block { padding: 14px 18px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9rem; border-left: 3px solid; }
+  .insight-block strong { display: block; margin-bottom: 4px; font-size: 0.95rem; }
+  .ins-red { background: #1e1414; border-color: var(--red); }
+  .ins-yellow { background: #1e1c14; border-color: var(--yellow); }
+  .ins-green { background: #141e19; border-color: var(--green); }
+
+  .sprint-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 0; }
+  .sprint-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; opacity: 0.45; }
+  .sprint-card .sprint-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
+  .sprint-card h3 { font-size: 0.95rem; color: var(--muted); margin-bottom: 8px; }
+  .sprint-card .coming { font-size: var(--small); color: var(--muted); font-style: italic; }
+  .sprint-divider { border: none; border-top: 1px dashed var(--border); margin: 8px 0; }
+
+  .s1-card { background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; padding: 20px 22px; margin-bottom: 14px; }
+  .s1-card .sprint-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 6px; }
+  .s1-card .sprint-active { font-size: var(--small); color: var(--green); font-weight: 600; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+  .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: var(--small); text-align: center; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .audit-link { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .audit-link:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) { .two-col, .sprint-grid { grid-template-columns: 1fr; } .auto-card-header { flex-direction: column; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header">
+    <h1>AI Builder Plan — Faisal Khan</h1>
+    <div class="goal"><strong>#1 Goal:</strong> Maximize the number of clinical sites actively using NavIQ by end of 2026.</div>
+    <div class="meta">April 23, 2026 &nbsp;·&nbsp; Sprint 1 &nbsp;·&nbsp; Based on 5-week time audit (Mar 22 – Apr 25, 2026)</div>
+  </div>
+
+  <!-- ═══ SECTION 2: TIME SUMMARY ═══ -->
+  <h2>What the Time Audit Revealed</h2>
+  <p style="color:var(--muted);font-size:var(--small);margin-bottom:16px;">3 things that matter most. <a href="time-audit.html" class="audit-link">Full Time Audit →</a></p>
+
+  <div class="insight-block ins-red">
+    <strong>1. The real work window is 4 hours a day — maximum.</strong>
+    Daily standup at 8am, a hard stop at 3pm, and 12–14 hrs/week of recurring Akura meetings leave roughly 10am–12pm and 2–3pm as true discretionary time. On Thursdays (Sr. Staff + Faisal/Kavi + Cerevia back-to-back), that window collapses to zero before noon. Every automation should protect or extend this window, not add to the load inside it.
+  </div>
+
+  <div class="insight-block ins-red">
+    <strong>2. There is no post-conference follow-up system — and SCAI is happening right now.</strong>
+    10+ physicians are being engaged across SCAI (Apr 23–25). When the conference ends, follow-up defaults to memory, fragmented Slack threads, and whatever gets prioritized in a packed post-travel week. The 2-week post-conference window is when physician interest either converts to a sales conversation or stalls. Without a system to hand off to the sales team, momentum is lost.
+  </div>
+
+  <div class="insight-block ins-yellow">
+    <strong>3. Every NavIQ document spends 2 weeks in regulatory review across 3 systems.</strong>
+    The NavIQ Sales Presentation required 3 Enlil DCO cycles plus SharePoint comment rounds with Theresa and Rob — all before SCAI. This pattern repeats for every conference deliverable. Faisal manually submits, tracks, and chases completion. The process is invisible until a deadline is missed.
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION 3: AUTOMATION CARDS ═══ -->
+  <h2>What I'm Building</h2>
+  <p style="color:var(--muted);font-size:var(--small);margin-bottom:20px;">Sorted by impact: hours reclaimed × alignment with supporting the NavIQ commercial goal. Each card = one automation opportunity.</p>
+
+  <!-- CARD 1 -->
+  <div class="auto-card">
+    <div class="auto-card-header">
+      <div style="display:flex;align-items:flex-start;">
+        <span class="rank-num">01</span>
+        <div>
+          <h3>Every SCAI physician gets handed off to the sales team with context — before the post-conference window closes</h3>
+          <div class="auto-meta" style="margin-top:6px;">
+            <span class="tag tag-quick">Quick Win</span>
+            <span class="hours-badge">~3 hrs/week reclaimed post-conference</span>
+            <span class="goal-tag">⬆ Keeps sales team unblocked after every conference</span>
+          </div>
+        </div>
+      </div>
+      <span class="status-badge">Not started</span>
+    </div>
+    <div class="auto-detail">
+      <span class="lbl">Outcome</span>
+      <span class="val">Within 48 hours of each SCAI meeting, the sales team receives a structured handoff: physician name, institution, conversation summary, suggested next step, and an Asana task with deadline. Faisal triggers this with a 30-second Slack note from the conference floor — the agent handles the rest.</span>
+      <span class="lbl">Today</span>
+      <span class="val">SCAI is running Apr 23–25. After the conference, handoff defaults to memory, verbal debriefs, and fragmented Slack threads. The sales team starts the follow-up window without consistent context on what was discussed or what the next step should be for each physician.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">During SCAI: Faisal sends a brief Slack note after each physician meeting ("Rosenfield — NavIQ pilot interest, wants data on outcomes, follow up in 2 weeks"). Agent drafts a personalized email for sales team review, creates an Asana task assigned to the right rep with a deadline, and logs the contact. Post-conference Monday digest shows all SCAI contacts with handoff status.</span>
+    </div>
+  </div>
+
+  <!-- CARD 2 -->
+  <div class="auto-card">
+    <div class="auto-card-header">
+      <div style="display:flex;align-items:flex-start;">
+        <span class="rank-num">02</span>
+        <div>
+          <h3>Daily brief runs in the cloud — no laptop wake-up required</h3>
+          <div class="auto-meta" style="margin-top:6px;">
+            <span class="tag tag-quick">Quick Win</span>
+            <span class="hours-badge">~1 hr/week overhead eliminated</span>
+            <span class="goal-tag">⬆ NavIQ priorities arrive before the 8am standup, reliably</span>
+          </div>
+        </div>
+      </div>
+      <span class="status-badge">Not started</span>
+    </div>
+    <div class="auto-detail">
+      <span class="lbl">Outcome</span>
+      <span class="val">At 6:50am PT, Faisal receives a NavIQ-first morning brief via email — regardless of whether his laptop is on. Sections: (1) Sales team handoffs needing attention, (2) Outstanding reg DCOs + deadlines, (3) Days to EuroPCR + open prep items, (4) Post-SCAI physician pipeline, (5) Japan distributor thread status. One email. Decision-ready before standup.</span>
+      <span class="lbl">Today</span>
+      <span class="val">A daily brief runs via Claude Cowork on a scheduled task — but it requires the personal laptop to be awake at home each morning to fire. When the laptop is closed or asleep, the brief doesn't run. The brief also surfaces general top-of-mind items rather than a NavIQ-first view.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">Move the scheduled task to a cloud-hosted trigger (n8n, a server-side cron, or a remote Claude scheduled task) so it fires at 6:50am PT independent of any local machine. Expand the brief template with the 5 NavIQ-specific sections above. Delivered to Gmail, read on any device.</span>
+    </div>
+  </div>
+
+  <!-- CARD 3 -->
+  <div class="auto-card">
+    <div class="auto-card-header">
+      <div style="display:flex;align-items:flex-start;">
+        <span class="rank-num">03</span>
+        <div>
+          <h3>New company website page clears regulatory review on a tracked schedule — not a deadline scramble</h3>
+          <div class="auto-meta" style="margin-top:6px;">
+            <span class="tag tag-medium">Medium Lift</span>
+            <span class="hours-badge">~2–3 hrs per website release cycle</span>
+            <span class="goal-tag">Unblocks every external publish</span>
+          </div>
+        </div>
+      </div>
+      <span class="status-badge">Not started</span>
+    </div>
+    <div class="auto-detail">
+      <span class="lbl">Outcome</span>
+      <span class="val">When web content is ready for regulatory review, the agent submits it, tracks approval across Enlil and SharePoint, posts status updates to Slack, nudges reviewers before deadlines slip, and confirms clearance before publish. The web team gets a green light automatically — Faisal doesn't manage the cycle.</span>
+      <span class="lbl">Today</span>
+      <span class="val">A new page for akuramedical.com is in progress. All external-facing NavIQ content requires regulatory approval before going live. Based on the NavIQ Sales Presentation (MKT-02601 Rev B) as the benchmark: 3 Enlil DCO cycles (04745 → 04814 → 04819) plus SharePoint comment rounds with Theresa and Rob — 2 weeks of manual tracking across 3 platforms to approve a single document. Website content will follow the same pattern.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">"Ready for reg" in Slack (or a Google Drive status tag) triggers the agent: sends a formatted review request to Theresa and Rob with content link, compliance checklist, and publish deadline; monitors Enlil DCO status emails; posts progress to #reg-review; sends a 24-hr nudge if approval is stalled; confirms clearance and notifies the web team to proceed. Same workflow as the document review automation — one system, two use cases.</span>
+    </div>
+  </div>
+
+  <!-- CARD 4 -->
+  <div class="auto-card">
+    <div class="auto-card-header">
+      <div style="display:flex;align-items:flex-start;">
+        <span class="rank-num">04</span>
+        <div>
+          <h3>NavIQ marketing docs submit, track, and nudge themselves through regulatory review</h3>
+          <div class="auto-meta" style="margin-top:6px;">
+            <span class="tag tag-medium">Medium Lift</span>
+            <span class="hours-badge">~2 hrs/week reclaimed</span>
+            <span class="goal-tag">Unblocks every conference deliverable</span>
+          </div>
+        </div>
+      </div>
+      <span class="status-badge">Not started</span>
+    </div>
+    <div class="auto-detail">
+      <span class="lbl">Outcome</span>
+      <span class="val">When a doc is flagged ready for regulatory review, the agent handles submission, tracks DCO status, posts updates to Slack, sends a 24-hr nudge if approval is stalled, and confirms completion. Faisal touches the document — not the process around it.</span>
+      <span class="lbl">Today</span>
+      <span class="val">The NavIQ Sales Presentation went through 3 Enlil DCO cycles (04745 → 04814 → 04819) plus SharePoint rounds with Theresa and Rob across two weeks — all to approve one deck before SCAI. This repeats for every conference deliverable. Faisal manually submits, monitors, and chases across 3 platforms.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">"Ready for reg" phrase in Slack triggers the agent: sends a formatted request to Theresa and Rob with document link, checklist, and hard deadline; monitors Enlil DCO status emails; posts progress to #reg-review; sends a 24-hr nudge if pending; confirms approval. Same core workflow as the website review (Card 3) — built once, used for both.</span>
+    </div>
+  </div>
+
+  <!-- CARD 5 -->
+  <div class="auto-card">
+    <div class="auto-card-header">
+      <div style="display:flex;align-items:flex-start;">
+        <span class="rank-num">05</span>
+        <div>
+          <h3>Conference logistics run on a brief — Ruby owns decisions, Faisal sees a summary</h3>
+          <div class="auto-meta" style="margin-top:6px;">
+            <span class="tag tag-medium">Medium Lift</span>
+            <span class="hours-badge">~2 hrs/week in conference peaks</span>
+          </div>
+        </div>
+      </div>
+      <span class="status-badge">Not started</span>
+    </div>
+    <div class="auto-detail">
+      <span class="lbl">Outcome</span>
+      <span class="val">Starting 4 weeks before each conference, Faisal receives one weekly logistics summary — not 16 individual emails. Ruby makes logistics decisions autonomously within the brief. Faisal reviews only physician agenda and strategic decisions.</span>
+      <span class="lbl">Today</span>
+      <span class="val">Ruby Grote sent 16 emails in 30 days: hotel check-in, badge pickup, booth setup, Know-Before-You-Go, dinner reservations (3 venues for SIR), ProExhibits final docs, SCAI hotel update, attendee lists. Faisal is active or CC'd in all of them. EuroPCR will repeat this pattern.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">Conference prep agent activates when a conference appears on the calendar 4 weeks out. Generates a logistics checklist, assigns Ruby as logistics owner, and produces a standing Monday brief on open items. Faisal receives one weekly summary. Ruby makes logistics decisions autonomously; Faisal only touches physician agenda and strategic decisions.</span>
+    </div>
+  </div>
+
+  <!-- CARD 6 -->
+  <div class="auto-card" style="opacity:0.65;">
+    <div class="auto-card-header">
+      <div style="display:flex;align-items:flex-start;">
+        <span class="rank-num">06</span>
+        <div>
+          <h3>Sales team has a live physician pipeline — without reconstructing it from Faisal's memory</h3>
+          <div class="auto-meta" style="margin-top:6px;">
+            <span class="tag tag-medium">Medium Lift</span>
+            <span class="hours-badge">~2 hrs/week overhead eliminated</span>
+            <span class="goal-tag" style="color:var(--muted);">Supports sales team visibility</span>
+          </div>
+        </div>
+      </div>
+      <span class="status-badge">Lower priority</span>
+    </div>
+    <div class="auto-detail">
+      <span class="lbl">Outcome</span>
+      <span class="val">Every Monday at 7am, a physician pipeline view posts to Slack: institution, last contact, status (warm / active / stalled / converted), next action + owner. Sales team corrects in 2 minutes. CCO gets a monthly version automatically. Faisal is a contributor, not the source of truth.</span>
+      <span class="lbl">Today</span>
+      <span class="val">Mount Sinai, Japan (Medicos Hirata), Encompass Vascular, and 10+ post-SCAI warm leads each live in a separate thread or DM. The sales team has no consolidated view — status gets reconstructed verbally in meetings or by asking Faisal.</span>
+      <span class="lbl">Automated</span>
+      <span class="val">Monday 7am agent scans Outlook and Slack for site and physician mentions, extracts status signals, and posts a structured pipeline view for the sales team. Over time it learns the pipeline vocabulary. CCO gets a clean monthly version without a separate report being produced.</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION 4: MY SYSTEM ═══ -->
+  <h2>My System — Sprint Roadmap</h2>
+  <p style="color:var(--muted);font-size:var(--small);margin-bottom:20px;">Where this is heading. Each sprint builds on the last.</p>
+
+  <div class="s1-card">
+    <div class="sprint-label">Sprint 1 — Active Now</div>
+    <h3 style="color:var(--text);">Time Audit + Automation Plan</h3>
+    <div class="sprint-divider"></div>
+    <div class="sprint-active">✓ Time audit complete &nbsp;·&nbsp; ✓ Automation opportunities mapped &nbsp;·&nbsp; ✓ This plan</div>
+  </div>
+
+  <div class="sprint-grid">
+    <div class="sprint-card">
+      <div class="sprint-label">Sprint 2</div>
+      <h3>Deployed Website + Data Collection Tool</h3>
+      <div class="sprint-divider"></div>
+      <div class="coming">Coming in Sprint 2</div>
+    </div>
+    <div class="sprint-card">
+      <div class="sprint-label">Sprint 3</div>
+      <h3>Automated n8n or Claude Routines Workflow</h3>
+      <div class="sprint-divider"></div>
+      <div class="coming">Coming in Sprint 3</div>
+    </div>
+    <div class="sprint-card">
+      <div class="sprint-label">Sprint 4</div>
+      <h3>Knowledge Wiki Context System</h3>
+      <div class="sprint-divider"></div>
+      <div class="coming">Coming in Sprint 4</div>
+    </div>
+    <div class="sprint-card">
+      <div class="sprint-label">Sprint 5</div>
+      <h3>Custom Agentic Workflow</h3>
+      <div class="sprint-divider"></div>
+      <div class="coming">Coming in Sprint 5</div>
+    </div>
+  </div>
+
+  <div class="sprint-grid" style="margin-top:14px;">
+    <div class="sprint-card" style="grid-column: 1 / -1;">
+      <div class="sprint-label">Sprint 6</div>
+      <h3>Eval System — Tested and Documented</h3>
+      <div class="sprint-divider"></div>
+      <div class="coming">Coming in Sprint 6</div>
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="footer">AI Builder Automation Portfolio — April 23, 2026 &nbsp;|&nbsp; Built in L2</div>
+
+</div>
+</body>
+</html>

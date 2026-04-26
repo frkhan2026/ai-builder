@@ -1,0 +1,7 @@
+.env.local
+.env
+.claude/
+.tmp.drivedownload/
+.tmp.driveupload/
+node_modules/
+.vercel/

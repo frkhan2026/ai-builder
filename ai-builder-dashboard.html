@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automation Roadmap — Faisal Khan</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3352;
+    --accent: #4f8ef7;
+    --accent2: #7c5cbf;
+    --green: #34c97b;
+    --yellow: #f5c842;
+    --red: #e85c5c;
+    --orange: #f0874a;
+    --text: #e8eaf0;
+    --muted: #8a90a8;
+    --small: 0.82rem;
+    --col-suggested-bg: #15161e;
+    --col-suggested-border: #252836;
+    --col-suggested-header: #5a6070;
+    --col-tobuild-header: #4f8ef7;
+    --col-inprogress-header: #f5c842;
+    --col-done-header: #34c97b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  /* ── Background blobs ── */
+  .bg-blob { position: fixed; border-radius: 50%; pointer-events: none; z-index: -1; will-change: transform; backface-visibility: hidden; }
+  .bg-blob-0 { width:62vw; height:62vw; background:rgba(79,142,247,0.10); filter:blur(72px); top:-8%;    left:-12%;  animation:blobA 38s ease-in-out infinite alternate; }
+  .bg-blob-1 { width:54vw; height:54vw; background:rgba(52,201,123,0.09); filter:blur(80px); bottom:-8%; right:-12%; animation:blobB 47s ease-in-out infinite alternate; }
+  .bg-blob-2 { width:46vw; height:46vw; background:rgba(245,200,66,0.07); filter:blur(90px); top:28%;    right:12%;  animation:blobC 55s ease-in-out infinite alternate; }
+  .bg-blob-3 { width:42vw; height:42vw; background:rgba(124,92,191,0.09); filter:blur(78px); bottom:18%; left:8%;    animation:blobD 42s ease-in-out infinite alternate; }
+  @keyframes blobA { from { transform:translate(0,0) scale(1); }    to { transform:translate(9vw,7vh)    scale(1.10); } }
+  @keyframes blobB { from { transform:translate(0,0) scale(1); }    to { transform:translate(-10vw,-8vh) scale(0.90); } }
+  @keyframes blobC { from { transform:translate(0,0) scale(1); }    to { transform:translate(-7vw,10vh)  scale(1.06); } }
+  @keyframes blobD { from { transform:translate(0,0) scale(1); }    to { transform:translate(12vw,-5vh)  scale(1.08); } }
+
+  /* ── Page ── */
+  .page { padding: 32px 28px 80px; }
+
+  .header { border-bottom: 1px solid var(--border); padding-bottom: 22px; margin-bottom: 28px; }
+  .header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .header h1 { font-size: 1.5rem; font-weight: 700; }
+  .header-actions { display: flex; align-items: center; gap: 14px; }
+  .header-back { color: var(--accent); text-decoration: none; font-size: var(--small); font-weight: 600; }
+  .header-back:hover { text-decoration: underline; }
+  .header .meta { margin-top: 8px; color: var(--muted); font-size: var(--small); }
+
+  /* New Card button */
+  .btn-new {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.85rem; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    letter-spacing: 0.01em;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-new:hover  { opacity: 0.88; transform: translateY(-1px); }
+  .btn-new:active { transform: translateY(0); opacity: 1; }
+  .btn-new-icon   { font-size: 1.1rem; line-height: 1; margin-top: -1px; }
+
+  /* ── Board ── */
+  .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: start; }
+
+  .col { border-radius: 12px; min-height: 400px; display: flex; flex-direction: column; }
+  .col-suggested  { background: var(--col-suggested-bg); border: 1px solid var(--col-suggested-border); }
+  .col-tobuild    { background: var(--surface); border: 1px solid var(--border); }
+  .col-inprogress { background: var(--surface); border: 1px solid var(--border); }
+  .col-done       { background: var(--surface); border: 1px solid var(--border); }
+
+  .col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 12px; border-bottom:1px solid var(--border); border-radius:12px 12px 0 0; }
+  .col-suggested .col-header { border-color: var(--col-suggested-border); }
+
+  .col-title { font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.09em; }
+  .col-suggested  .col-title { color: var(--col-suggested-header); }
+  .col-tobuild    .col-title { color: var(--col-tobuild-header); }
+  .col-inprogress .col-title { color: var(--col-inprogress-header); }
+  .col-done       .col-title { color: var(--col-done-header); }
+
+  .col-count { font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:20px; background:var(--surface2); }
+  .col-suggested  .col-count { background:#1e2030; color:var(--col-suggested-header); }
+  .col-tobuild    .col-count { background:#162040; color:var(--col-tobuild-header); }
+  .col-inprogress .col-count { background:#2a2810; color:var(--col-inprogress-header); }
+  .col-done       .col-count { background:#122516; color:var(--col-done-header); }
+
+  .col-body { padding:12px 10px; flex:1; display:flex; flex-direction:column; gap:10px; }
+  .col-body.drag-over { background:rgba(79,142,247,0.06); border-radius:0 0 12px 12px; }
+
+  /* ── Cards ── */
+  .k-card { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px 14px 12px; cursor:grab; user-select:none; position:relative; }
+  .col-suggested .k-card { background:#1a1c28; border-color:var(--col-suggested-border); opacity:0.7; }
+  .col-done      .k-card { opacity:0.75; }
+  .k-card--source      { opacity:0.12 !important; cursor:grabbing !important; }
+  .k-card--placeholder { border:2px dashed rgba(79,142,247,0.35); background:rgba(79,142,247,0.04); border-radius:8px; pointer-events:none; flex-shrink:0; }
+
+  .k-card-name { font-size:0.88rem; font-weight:700; line-height:1.35; margin-bottom:6px; color:var(--text); }
+  .col-suggested .k-card-name { color:var(--muted); }
+  .col-done      .k-card-name { color:var(--muted); text-decoration:line-through; text-decoration-color:#3a3f55; }
+
+  .k-card-desc { font-size:0.78rem; color:var(--muted); line-height:1.4; margin-bottom:10px; }
+  .k-card-footer { display:flex; align-items:center; justify-content:space-between; }
+
+  .priority { font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; padding:2px 7px; border-radius:4px; }
+  .priority-high   { background:#2e1e1e; color:var(--red); }
+  .priority-medium { background:#2e2a14; color:var(--yellow); }
+  .priority-low    { background:#1a2a20; color:var(--green); }
+
+  .drag-hint { font-size:0.65rem; color:#3a3f55; letter-spacing:0.03em; opacity:0; transition:opacity 0.2s; }
+  .k-card:hover .drag-hint { opacity:1; }
+
+  /* ── Card action buttons (edit / delete) ── */
+  .k-card-actions {
+    position: absolute; top: 9px; right: 9px;
+    display: flex; gap: 4px;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .k-card:hover .k-card-actions { opacity: 1; }
+  /* reserve right margin so long names never run under the buttons */
+  .k-card-name { padding-right: 52px; }
+
+  .k-act-btn {
+    width: 24px; height: 24px;
+    border-radius: 5px; border: none;
+    background: var(--surface); color: var(--muted);
+    font-size: 0.72rem; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.12s, color 0.12s;
+    /* stop the card's grab cursor bleeding in */
+    cursor: pointer;
+  }
+  .k-act-btn:hover { background: var(--surface2); }
+  .k-edit-btn:hover { color: var(--accent); }
+  .k-del-btn:hover  { color: var(--red); }
+
+  /* ── Delete confirmation overlay ── */
+  .k-confirm {
+    position: absolute; inset: 0; border-radius: 8px;
+    background: rgba(10,11,17,0.90);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px;
+    z-index: 20;
+  }
+  .k-confirm-label { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+  .k-confirm-btns  { display: flex; gap: 8px; }
+  .k-confirm-yes, .k-confirm-no {
+    padding: 5px 14px; border-radius: 6px;
+    font-size: 0.78rem; font-weight: 700;
+    cursor: pointer; font-family: inherit; border: none;
+    transition: opacity 0.12s;
+  }
+  .k-confirm-yes { background: rgba(232,92,92,0.18); color: var(--red); border: 1px solid rgba(232,92,92,0.35); }
+  .k-confirm-yes:hover { opacity: 0.8; }
+  .k-confirm-no  { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .k-confirm-no:hover { color: var(--text); }
+
+  .col-empty { font-size:var(--small); color:#3a3f55; text-align:center; padding:24px 12px; font-style:italic; }
+  .col-suggested .col-empty { color:#2e3352; }
+
+  .footer { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:var(--small); text-align:center; }
+
+  @media (max-width: 900px) { .board { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .board { grid-template-columns: 1fr; } }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 500;
+    display: none;          /* toggled to flex in JS */
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 28px 24px;
+    width: 100%; max-width: 460px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+  }
+
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .modal-header h2 { font-size: 1rem; font-weight: 700; }
+  .modal-close {
+    background: none; border: none; color: var(--muted);
+    font-size: 1.35rem; line-height: 1; cursor: pointer; padding: 2px 5px;
+    border-radius: 4px; transition: color 0.15s, background 0.15s;
+  }
+  .modal-close:hover { color: var(--text); background: var(--surface2); }
+
+  .modal-field { margin-bottom: 18px; }
+  .modal-field label {
+    display: block; font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .modal-field label .req { color: var(--accent); margin-left: 2px; }
+
+  .modal-field input,
+  .modal-field textarea {
+    width: 100%;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: inherit; font-size: 0.9rem;
+    padding: 10px 12px; outline: none; resize: vertical;
+    transition: border-color 0.15s;
+  }
+  .modal-field input::placeholder,
+  .modal-field textarea::placeholder { color: #454b65; }
+  .modal-field input:focus,
+  .modal-field textarea:focus { border-color: var(--accent); }
+  .modal-field input.is-error { border-color: var(--red); }
+
+  /* Priority toggle */
+  .pri-picker { display: flex; gap: 8px; }
+  .pri-btn {
+    flex: 1; padding: 7px 4px;
+    border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted);
+    font-size: 0.68rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .pri-btn:hover:not(.is-active) { border-color: var(--muted); color: var(--text); }
+  .pri-btn.is-active[data-p="high"]   { background:#2e1e1e; border-color:var(--red);    color:var(--red);    }
+  .pri-btn.is-active[data-p="medium"] { background:#2e2a14; border-color:var(--yellow); color:var(--yellow); }
+  .pri-btn.is-active[data-p="low"]    { background:#1a2a20; border-color:var(--green);  color:var(--green);  }
+
+  /* Column picker */
+  .col-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+  .col-pick-btn {
+    padding: 6px 12px; border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted);
+    font-size: 0.68rem; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .col-pick-btn:hover:not(.is-active) { border-color: var(--muted); color: var(--text); }
+  .col-pick-btn.is-active { background: rgba(79,142,247,0.14); border-color: var(--accent); color: var(--accent); }
+
+  /* Modal actions */
+  .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; }
+  .modal-actions button { padding:9px 20px; border-radius:8px; font-size:0.88rem; font-weight:600; cursor:pointer; font-family:inherit; border:none; transition:opacity 0.15s, transform 0.1s; }
+  .btn-cancel { background:var(--surface2); border:1px solid var(--border) !important; color:var(--muted); }
+  .btn-cancel:hover { color:var(--text); border-color:var(--muted) !important; }
+  .btn-submit { background:var(--accent); color:#fff; }
+  .btn-submit:hover  { opacity:0.88; }
+  .btn-submit:active { transform:scale(0.97); }
+</style>
+</head>
+<body>
+
+<div class="bg-blob bg-blob-0"></div>
+<div class="bg-blob bg-blob-1"></div>
+<div class="bg-blob bg-blob-2"></div>
+<div class="bg-blob bg-blob-3"></div>
+
+<!-- ── New Card modal ── -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal" id="modal-panel">
+    <div class="modal-header">
+      <h2 id="modal-title">New Card</h2>
+      <button class="modal-close" id="modal-close" aria-label="Close modal">&#x2715;</button>
+    </div>
+    <form id="modal-form" novalidate>
+      <div class="modal-field">
+        <label for="m-name">Name<span class="req">*</span></label>
+        <input id="m-name" type="text" placeholder="What are you automating?" maxlength="120" autocomplete="off">
+      </div>
+      <div class="modal-field">
+        <label for="m-desc">Description</label>
+        <textarea id="m-desc" rows="3" placeholder="One-line outcome — what changes when this runs?"></textarea>
+      </div>
+      <div class="modal-field">
+        <label>Priority</label>
+        <div class="pri-picker" id="pri-picker">
+          <button type="button" class="pri-btn" data-p="high">High</button>
+          <button type="button" class="pri-btn is-active" data-p="medium">Medium</button>
+          <button type="button" class="pri-btn" data-p="low">Low</button>
+        </div>
+      </div>
+      <div class="modal-field">
+        <label>Column</label>
+        <div class="col-picker" id="col-picker">
+          <button type="button" class="col-pick-btn" data-c="suggested">Suggested</button>
+          <button type="button" class="col-pick-btn is-active" data-c="tobuild">To Build</button>
+          <button type="button" class="col-pick-btn" data-c="inprogress">In Progress</button>
+          <button type="button" class="col-pick-btn" data-c="done">Done</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="modal-cancel">Cancel</button>
+        <button type="submit" class="btn-submit">Add Card</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="page">
+  <div class="header">
+    <div class="header-top">
+      <h1>Automation Roadmap</h1>
+      <div class="header-actions">
+        <a href="ai-builder-plan.html" class="header-back">← Full AI Builder Plan</a>
+        <button class="btn-new" id="new-card-btn">
+          <span class="btn-new-icon">+</span> New Card
+        </button>
+      </div>
+    </div>
+    <div class="meta">Drag to move · Click to advance · Right-click to go back · Synced to Notion · April 2026</div>
+  </div>
+
+  <div class="board" id="board">
+    <div class="col col-suggested" id="col-suggested">
+      <div class="col-header"><span class="col-title">Suggested</span><span class="col-count" id="count-suggested">0</span></div>
+      <div class="col-body" id="body-suggested"></div>
+    </div>
+    <div class="col col-tobuild" id="col-tobuild">
+      <div class="col-header"><span class="col-title">To Build</span><span class="col-count" id="count-tobuild">0</span></div>
+      <div class="col-body" id="body-tobuild"></div>
+    </div>
+    <div class="col col-inprogress" id="col-inprogress">
+      <div class="col-header"><span class="col-title">In Progress</span><span class="col-count" id="count-inprogress">0</span></div>
+      <div class="col-body" id="body-inprogress"></div>
+    </div>
+    <div class="col col-done" id="col-done">
+      <div class="col-header"><span class="col-title">Done</span><span class="col-count" id="count-done">0</span></div>
+      <div class="col-body" id="body-done"></div>
+    </div>
+  </div>
+
+  <div class="footer">AI Builder Automation Portfolio &nbsp;·&nbsp; Faisal Khan &nbsp;·&nbsp; April 2026</div>
+</div>
+
+<script>
+// ── Constants ──────────────────────────────────────────────────────────────────
+var DEFAULT_CARDS = [
+  { id:"card-01", name:"SCAI physician handoff to sales team",       desc:"30-sec Slack note from conference floor → structured sales handoff + Asana task, within 48 hrs.", priority:"high",   col:"tobuild" },
+  { id:"card-02", name:"Cloud-hosted morning brief",                 desc:"NavIQ-first daily brief to Gmail at 6:50am PT, fired from the cloud — no laptop required.",          priority:"high",   col:"tobuild" },
+  { id:"card-03", name:"Website content regulatory review tracker",  desc:"\"Ready for reg\" trigger → auto-submits, tracks Enlil DCOs, nudges reviewers, clears web team.",    priority:"medium", col:"tobuild" },
+  { id:"card-04", name:"Marketing doc regulatory review automation", desc:"Doc flagged ready → agent manages submission, tracks DCO cycles, confirms approval.",                priority:"medium", col:"tobuild" },
+  { id:"card-05", name:"Conference logistics brief",                 desc:"Agent activates 4 weeks pre-conference → Monday brief, Ruby owns logistics, Faisal sees summary.",   priority:"medium", col:"tobuild" },
+  { id:"card-06", name:"Live physician pipeline view",               desc:"Monday 7am Slack digest of all site and physician contacts — status, last touch, next action.",       priority:"low",    col:"tobuild" }
+];
+
+var STORAGE_KEY = "akura_kanban_v2";
+var COL_ORDER   = ["suggested","tobuild","inprogress","done"];
+var SPRING      = "cubic-bezier(0.34, 1.56, 0.64, 1)";
+var EASE_OUT    = "cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+var THRESHOLD   = 5;
+
+var CONFETTI_SPECS = [
+  { w:"7px", h:"7px", r:"50%", color:"#34c97b" },
+  { w:"5px", h:"5px", r:"2px", color:"#4f8ef7" },
+  { w:"6px", h:"6px", r:"50%", color:"#f5c842" },
+  { w:"4px", h:"7px", r:"2px", color:"#7c5cbf" },
+  { w:"6px", h:"6px", r:"50%", color:"#f0874a" }
+];
+
+// ── Persistence ────────────────────────────────────────────────────────────────
+function patchStatus(id, col) {
+  fetch('/api/roadmap', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: id, col: col })
+  }).catch(function(e) { console.error('Notion PATCH failed', e); });
+}
+function save() {} // no-op — Notion is source of truth
+
+function initFromNotion() {
+  fetch('/api/roadmap')
+    .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(data) { cards = data; render(); })
+    .catch(function(e) {
+      console.error('Failed to load from Notion, using defaults', e);
+      cards = DEFAULT_CARDS.map(function(c) { return Object.assign({}, c); });
+      render();
+    });
+}
+
+// ── State — ALL declared before render() ──────────────────────────────────────
+var cards           = [];
+var placeholder     = null;
+var dragState       = null;
+var modalPriority   = "medium";   // modal form state
+var modalCol        = "tobuild";  // modal form state
+var modalEditId     = null;       // null = create, string = edit card id
+
+// ── DOM refs (safe here — script is at bottom of body) ────────────────────────
+var modalOverlay = document.getElementById("modal-overlay");
+var modalPanel   = document.getElementById("modal-panel");
+var modalForm    = document.getElementById("modal-form");
+var mName        = document.getElementById("m-name");
+var mDesc        = document.getElementById("m-desc");
+
+// ── Utilities ──────────────────────────────────────────────────────────────────
+function colBody(col) { return document.getElementById("body-" + col); }
+function priorityClass(p) { return p==="high"?"priority-high":p==="medium"?"priority-medium":"priority-low"; }
+function priorityLabel(p) { return p==="high"?"High":p==="medium"?"Medium":"Low"; }
+function uid() { return "card-" + Date.now() + "-" + Math.floor(Math.random()*9999); }
+
+// ── Modal ──────────────────────────────────────────────────────────────────────
+function setPriority(p) {
+  modalPriority = p;
+  document.querySelectorAll(".pri-btn").forEach(function(b) {
+    b.classList.toggle("is-active", b.dataset.p === p);
+  });
+}
+function setCol(c) {
+  modalCol = c;
+  document.querySelectorAll(".col-pick-btn").forEach(function(b) {
+    b.classList.toggle("is-active", b.dataset.c === c);
+  });
+}
+
+// cardToEdit: undefined → create mode; card object → edit mode
+function openModal(cardToEdit) {
+  var isEdit = !!cardToEdit;
+  modalEditId = isEdit ? cardToEdit.id : null;
+
+  mName.value = isEdit ? cardToEdit.name        : "";
+  mDesc.value = isEdit ? (cardToEdit.desc || "") : "";
+  mName.classList.remove("is-error");
+  setPriority(isEdit ? cardToEdit.priority : "medium");
+  setCol(isEdit ? cardToEdit.col : "tobuild");
+
+  document.getElementById("modal-title").textContent  = isEdit ? "Edit Card"     : "New Card";
+  document.querySelector(".btn-submit").textContent    = isEdit ? "Save Changes"  : "Add Card";
+
+  modalOverlay.style.display = "flex";
+  modalOverlay.animate([{ opacity:0 },{ opacity:1 }], { duration:180, easing:"ease-out" });
+  modalPanel.animate(
+    [{ opacity:0, transform:"scale(0.95) translateY(8px)" },
+     { opacity:1, transform:"none" }],
+    { duration:240, easing:SPRING }
+  );
+  requestAnimationFrame(function() { mName.focus(); });
+}
+
+function closeModal() {
+  var anim = modalOverlay.animate([{ opacity:1 },{ opacity:0 }],
+    { duration:160, easing:"ease-in", fill:"forwards" });
+  anim.onfinish = function() {
+    modalOverlay.style.display = "none";
+    anim.cancel(); // release fill so display:flex works next open
+  };
+}
+
+function submitModal(e) {
+  e.preventDefault();
+  var name = mName.value.trim();
+  if (!name) {
+    mName.classList.add("is-error");
+    mName.focus();
+    mName.animate(
+      [{ transform:"translateX(0)" },{ transform:"translateX(-6px)" },
+       { transform:"translateX(6px)" },{ transform:"translateX(0)" }],
+      { duration:220, easing:"ease-out" }
+    );
+    return;
+  }
+
+  if (modalEditId) {
+    // ── Edit existing card ──
+    var idx = cards.findIndex(function(c) { return c.id === modalEditId; });
+    if (idx !== -1) {
+      cards[idx].name     = name;
+      cards[idx].desc     = mDesc.value.trim();
+      cards[idx].priority = modalPriority;
+      cards[idx].col      = modalCol;
+    }
+    var savedEditId = modalEditId;
+    save(cards);
+    closeModal();
+    render();
+    // Blue accent pulse on the updated card
+    requestAnimationFrame(function() {
+      var el = document.querySelector("[data-id=\"" + savedEditId + "\"]");
+      if (!el) return;
+      el.scrollIntoView({ behavior:"smooth", block:"nearest" });
+      el.animate(
+        [{ boxShadow:"0 0 0 3px rgba(79,142,247,0.55)" },
+         { boxShadow:"0 0 0 0   rgba(79,142,247,0)" }],
+        { duration:550, easing:"ease-out" }
+      );
+    });
+  } else {
+    // ── Create new card ──
+    var card = { id:uid(), name:name, desc:mDesc.value.trim(), priority:modalPriority, col:modalCol };
+    cards.push(card);
+    save(cards);
+    closeModal();
+    render();
+    requestAnimationFrame(function() {
+      var el = document.querySelector("[data-id=\"" + card.id + "\"]");
+      if (!el) return;
+      el.scrollIntoView({ behavior:"smooth", block:"nearest" });
+      el.animate(
+        [{ opacity:0, transform:"translateY(-10px)" },
+         { opacity:1, transform:"translateY(0)" }],
+        { duration:320, easing:SPRING }
+      );
+    });
+  }
+}
+
+// Wire modal controls once, outside render()
+document.getElementById("new-card-btn").addEventListener("click", openModal);
+document.getElementById("modal-close").addEventListener("click", closeModal);
+document.getElementById("modal-cancel").addEventListener("click", closeModal);
+modalOverlay.addEventListener("click", function(e) { if (e.target === modalOverlay) closeModal(); });
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape" && modalOverlay.style.display === "flex") closeModal();
+});
+document.querySelectorAll(".pri-btn").forEach(function(b) {
+  b.addEventListener("click", function() { setPriority(b.dataset.p); });
+});
+document.querySelectorAll(".col-pick-btn").forEach(function(b) {
+  b.addEventListener("click", function() { setCol(b.dataset.c); });
+});
+mName.addEventListener("input", function() { mName.classList.remove("is-error"); });
+modalForm.addEventListener("submit", submitModal);
+
+// ── Delete card ────────────────────────────────────────────────────────────────
+function deleteCard(id) {
+  var el = document.querySelector("[data-id=\"" + id + "\"]");
+  function doDelete() {
+    var idx = cards.findIndex(function(c) { return c.id === id; });
+    if (idx !== -1) cards.splice(idx, 1);
+    save(cards);
+    render();
+  }
+  if (el) {
+    var anim = el.animate(
+      [{ opacity:1, transform:"scale(1)" },
+       { opacity:0, transform:"scale(0.88)" }],
+      { duration:180, easing:"ease-in", fill:"forwards" }
+    );
+    anim.onfinish = doDelete;
+  } else {
+    doDelete();
+  }
+}
+
+// ── Done celebrations ──────────────────────────────────────────────────────────
+function pulseGreen(el) {
+  el.animate([
+    { boxShadow:"0 0 0 0 rgba(52,201,123,0)" },
+    { boxShadow:"0 0 0 0 rgba(52,201,123,0)", offset:0.05 },
+    { boxShadow:"0 0 22px 7px rgba(52,201,123,0.52)" },
+    { boxShadow:"0 0 0 0 rgba(52,201,123,0)" }
+  ], { duration:620, easing:"ease-out" });
+}
+
+function fireConfetti(el) {
+  var rect = el.getBoundingClientRect();
+  var cx = rect.left + rect.width / 2;
+  var cy = rect.top  + rect.height * 0.28;
+  var n  = CONFETTI_SPECS.length;
+  for (var i = 0; i < n; i++) {
+    (function(i) {
+      var spec  = CONFETTI_SPECS[i];
+      var angle = (Math.PI * 5 / 18) + (i / (n - 1)) * (Math.PI * 4 / 9) + (Math.random() - 0.5) * 0.22;
+      var dist  = 38 + Math.random() * 28;
+      var tx    =  Math.cos(angle) * dist;
+      var ty    = -Math.sin(angle) * dist;
+      var p     = document.createElement("div");
+      p.style.cssText = ["position:fixed","left:"+cx+"px","top:"+cy+"px",
+        "width:"+spec.w,"height:"+spec.h,"background:"+spec.color,
+        "border-radius:"+spec.r,"pointer-events:none","z-index:2000",
+        "transform:translate(-50%,-50%)"].join(";");
+      document.body.appendChild(p);
+      var anim = p.animate([
+        { transform:"translate(-50%,-50%) scale(1.2)", opacity:"1" },
+        { transform:"translate(calc(-50% + "+tx+"px),calc(-50% + "+ty+"px)) scale(0.15)", opacity:"0" }
+      ], { duration:780, easing:"cubic-bezier(0.10,0.82,0.30,1)", fill:"forwards", delay:i*28 });
+      anim.onfinish = function() { if (p.parentNode) p.parentNode.removeChild(p); };
+    })(i);
+  }
+}
+
+function celebrateDone(cardId) {
+  var el = document.querySelector("[data-id=\"" + cardId + "\"]");
+  if (el) { pulseGreen(el); fireConfetti(el); }
+}
+
+// ── Ghost ──────────────────────────────────────────────────────────────────────
+function createGhost(sourceEl) {
+  var rect = sourceEl.getBoundingClientRect();
+  var g    = sourceEl.cloneNode(true);
+  g.className = "k-card";
+  g.style.cssText = ["position:fixed","left:"+rect.left+"px","top:"+rect.top+"px",
+    "width:"+rect.width+"px","height:"+rect.height+"px","margin:0",
+    "pointer-events:none","z-index:1000","transform:scale(1.03) rotate(2deg)",
+    "box-shadow:0 22px 52px rgba(0,0,0,0.65),0 4px 20px rgba(79,142,247,0.22)",
+    "will-change:transform,left,top","transition:none"].join(";");
+  document.body.appendChild(g);
+  return g;
+}
+
+function moveGhost(cx, cy) {
+  var ds   = dragState;
+  var velX = cx - ds.lastX;
+  ds.velX  = velX; ds.lastX = cx;
+  var tilt = Math.max(-4, Math.min(4, velX * 0.5));
+  ds.ghostEl.style.left      = (cx - ds.offsetX) + "px";
+  ds.ghostEl.style.top       = (cy - ds.offsetY) + "px";
+  ds.ghostEl.style.transform = "scale(1.03) rotate(" + (2 + tilt) + "deg)";
+}
+
+// ── Placeholder ────────────────────────────────────────────────────────────────
+function makePlaceholder(h) {
+  var el = document.createElement("div");
+  el.className = "k-card k-card--placeholder";
+  el.style.height = h + "px";
+  return el;
+}
+function removePlaceholder() {
+  if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+  placeholder = null;
+}
+
+// ── FLIP ──────────────────────────────────────────────────────────────────────
+function captureRects() {
+  var map = [];
+  COL_ORDER.forEach(function(col) {
+    var b = colBody(col); if (!b) return;
+    b.querySelectorAll(".k-card:not(.k-card--source):not(.k-card--placeholder)").forEach(function(el) {
+      map.push({ el:el, rect:el.getBoundingClientRect() });
+    });
+  });
+  return map;
+}
+function playFlip(snapshot) {
+  requestAnimationFrame(function() {
+    snapshot.forEach(function(item) {
+      if (!document.contains(item.el)) return;
+      var dy = item.rect.top - item.el.getBoundingClientRect().top;
+      if (Math.abs(dy) < 1) return;
+      item.el.animate([{ transform:"translateY("+dy+"px)" },{ transform:"translateY(0)" }],
+        { duration:175, easing:EASE_OUT });
+    });
+  });
+}
+
+// ── Drop zone ─────────────────────────────────────────────────────────────────
+function getDropTarget(cx, cy) {
+  for (var i = 0; i < COL_ORDER.length; i++) {
+    var col = COL_ORDER[i], b = colBody(col); if (!b) continue;
+    var colEl = document.getElementById("col-" + col);
+    var rect  = (colEl || b).getBoundingClientRect();
+    if (cx < rect.left || cx > rect.right || cy < rect.top - 10 || cy > rect.bottom + 20) continue;
+    var sibs = Array.prototype.slice.call(b.querySelectorAll(".k-card:not(.k-card--source):not(.k-card--placeholder)"));
+    var insertBefore = null;
+    for (var j = 0; j < sibs.length; j++) {
+      var sr = sibs[j].getBoundingClientRect();
+      if (cy < sr.top + sr.height / 2) { insertBefore = sibs[j]; break; }
+    }
+    return { col:col, body:b, insertBefore:insertBefore };
+  }
+  return null;
+}
+
+function updateDropZone(cx, cy) {
+  var target = getDropTarget(cx, cy);
+  document.querySelectorAll(".col-body").forEach(function(b) { b.classList.remove("drag-over"); });
+  if (!target) return;
+  target.body.classList.add("drag-over");
+  var samePrev = placeholder && placeholder.parentNode === target.body;
+  var sameNext = placeholder && placeholder.nextSibling === (target.insertBefore || null);
+  if (samePrev && sameNext) return;
+  var snap = captureRects();
+  if (!placeholder) placeholder = makePlaceholder(dragState ? dragState.cardHeight : 72);
+  if (target.insertBefore) target.body.insertBefore(placeholder, target.insertBefore);
+  else                     target.body.appendChild(placeholder);
+  playFlip(snap);
+}
+
+// ── Column advance / regress ───────────────────────────────────────────────────
+function advanceCard(id) {
+  var idx = cards.findIndex(function(c) { return c.id === id; }); if (idx === -1) return;
+  var ci  = COL_ORDER.indexOf(cards[idx].col);
+  if (ci < COL_ORDER.length - 1) {
+    var prev = cards[idx].col;
+    cards[idx].col = COL_ORDER[ci + 1];
+    var toDone = (cards[idx].col === "done" && prev !== "done");
+    patchStatus(id, cards[idx].col); render();
+    if (toDone) celebrateDone(id);
+  }
+}
+function regressCard(id) {
+  var idx = cards.findIndex(function(c) { return c.id === id; }); if (idx === -1) return;
+  var ci  = COL_ORDER.indexOf(cards[idx].col);
+  if (ci > 0) { cards[idx].col = COL_ORDER[ci - 1]; patchStatus(id, cards[idx].col); render(); }
+}
+
+// ── Build card ─────────────────────────────────────────────────────────────────
+function buildCard(card) {
+  var el = document.createElement("div");
+  el.className  = "k-card";
+  el.dataset.id = card.id;
+  el.innerHTML  =
+    '<div class="k-card-actions">' +
+      '<button class="k-act-btn k-edit-btn" title="Edit card">&#9998;</button>' +
+      '<button class="k-act-btn k-del-btn"  title="Delete card">&#10005;</button>' +
+    '</div>' +
+    '<div class="k-card-name">' + card.name + '</div>' +
+    '<div class="k-card-desc">' + (card.desc || "") + '</div>' +
+    '<div class="k-card-footer">' +
+      '<span class="priority ' + priorityClass(card.priority) + '">' + priorityLabel(card.priority) + '</span>' +
+      '<span class="drag-hint">drag · click to advance · right-click to go back</span>' +
+    '</div>';
+
+  // ── Edit button ──
+  el.querySelector(".k-edit-btn").addEventListener("click", function(e) {
+    e.stopPropagation();
+    openModal(card);
+  });
+
+  // ── Delete button — shows an inline confirm overlay ──
+  el.querySelector(".k-del-btn").addEventListener("click", function(e) {
+    e.stopPropagation();
+    // If a confirm overlay already exists on this card, ignore
+    if (el.querySelector(".k-confirm")) return;
+
+    var overlay = document.createElement("div");
+    overlay.className = "k-confirm";
+    overlay.innerHTML =
+      '<span class="k-confirm-label">Delete this card?</span>' +
+      '<div class="k-confirm-btns">' +
+        '<button class="k-confirm-yes">Delete</button>' +
+        '<button class="k-confirm-no">Cancel</button>' +
+      '</div>';
+
+    // Prevent drag starting when interacting with overlay
+    overlay.addEventListener("pointerdown", function(e) { e.stopPropagation(); });
+
+    overlay.querySelector(".k-confirm-yes").addEventListener("click", function() {
+      deleteCard(card.id);
+    });
+    overlay.querySelector(".k-confirm-no").addEventListener("click", function() {
+      overlay.animate([{ opacity:1 },{ opacity:0 }], { duration:120, easing:"ease-in", fill:"forwards" })
+        .onfinish = function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); };
+    });
+
+    // Animate in
+    overlay.style.opacity = "0";
+    el.appendChild(overlay);
+    overlay.animate([{ opacity:0 },{ opacity:1 }], { duration:150, easing:"ease-out" });
+    overlay.style.opacity = "";
+  });
+
+  el.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    // Don't start drag when clicking action buttons or the confirm overlay
+    if (e.target.closest(".k-card-actions, .k-confirm")) return;
+    e.preventDefault();
+    var rect = el.getBoundingClientRect();
+    dragState = { cardId:card.id, cardEl:el, startX:e.clientX, startY:e.clientY,
+      offsetX:e.clientX-rect.left, offsetY:e.clientY-rect.top,
+      lastX:e.clientX, velX:0, cardHeight:rect.height,
+      isDragging:false, ghostEl:null, done:false };
+    el.setPointerCapture(e.pointerId);
+  });
+
+  el.addEventListener("pointermove", function(e) {
+    if (!dragState || dragState.cardEl !== el || dragState.done) return;
+    var dx = e.clientX - dragState.startX, dy = e.clientY - dragState.startY;
+    if (!dragState.isDragging) {
+      if (Math.sqrt(dx*dx + dy*dy) < THRESHOLD) return;
+      dragState.isDragging = true;
+      dragState.ghostEl    = createGhost(el);
+      el.classList.add("k-card--source");
+      document.body.style.cursor = "grabbing";
+    }
+    moveGhost(e.clientX, e.clientY);
+    updateDropZone(e.clientX, e.clientY);
+  });
+
+  el.addEventListener("pointerup", function(e) {
+    if (!dragState || dragState.cardEl !== el || dragState.done) return;
+    if (!dragState.isDragging) { dragState = null; advanceCard(card.id); return; }
+
+    dragState.done = true;
+    document.body.style.cursor = "";
+    document.querySelectorAll(".col-body").forEach(function(b) { b.classList.remove("drag-over"); });
+
+    var ghostEl = dragState.ghostEl, finalVelX = dragState.velX, cardId = dragState.cardId;
+    var enteringDone = false;
+
+    if (placeholder && placeholder.parentNode) {
+      var dropCol        = placeholder.parentNode.id.replace("body-", "");
+      var nextSib        = placeholder.nextSibling;
+      var insertBeforeId = (nextSib && nextSib.dataset && nextSib.dataset.id) ? nextSib.dataset.id : null;
+      var cardIdx        = cards.findIndex(function(c) { return c.id === cardId; });
+      var prevCol        = cards[cardIdx].col;
+      cards[cardIdx].col = dropCol;
+      enteringDone       = (dropCol === "done" && prevCol !== "done");
+      if (prevCol !== dropCol) patchStatus(cardId, dropCol);
+      if (insertBeforeId) {
+        var moved  = cards.splice(cardIdx, 1)[0];
+        var newIdx = cards.findIndex(function(c) { return c.id === insertBeforeId; });
+        if (newIdx !== -1) cards.splice(newIdx, 0, moved); else cards.push(moved);
+      } else {
+        var moved2 = cards.splice(cardIdx, 1)[0];
+        cards.push(moved2);
+      }
+    }
+
+    var finalized = false;
+    function finalize() {
+      if (finalized) return; finalized = true;
+      if (ghostEl && ghostEl.parentNode) ghostEl.parentNode.removeChild(ghostEl);
+      el.classList.remove("k-card--source");
+      removePlaceholder();
+      dragState = null;
+      render();
+      if (enteringDone) celebrateDone(cardId);
+    }
+
+    if (placeholder && placeholder.parentNode) {
+      var pRect = placeholder.getBoundingClientRect();
+      var ddx = pRect.left - parseFloat(ghostEl.style.left);
+      var ddy = pRect.top  - parseFloat(ghostEl.style.top);
+      var tilt = 2 + Math.max(-4, Math.min(4, finalVelX * 0.5));
+      var anim = ghostEl.animate([
+        { transform:"scale(1.03) rotate("+tilt+"deg)", boxShadow:"0 22px 52px rgba(0,0,0,0.65),0 4px 20px rgba(79,142,247,0.22)", opacity:"1" },
+        { transform:"translate("+ddx+"px,"+ddy+"px) scale(1) rotate(0deg)", boxShadow:"0 2px 8px rgba(0,0,0,0.35)", opacity:"0.5" }
+      ], { duration:300, easing:SPRING, fill:"forwards" });
+      anim.onfinish = finalize; anim.oncancel = finalize;
+    } else { finalize(); }
+  });
+
+  el.addEventListener("pointercancel", function() {
+    if (!dragState || dragState.cardEl !== el) return;
+    if (dragState.ghostEl) dragState.ghostEl.remove();
+    el.classList.remove("k-card--source");
+    document.body.style.cursor = "";
+    document.querySelectorAll(".col-body").forEach(function(b) { b.classList.remove("drag-over"); });
+    removePlaceholder(); dragState = null;
+  });
+
+  el.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+    if (!dragState || !dragState.isDragging) regressCard(card.id);
+  });
+
+  return el;
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────────
+function render() {
+  COL_ORDER.forEach(function(col) {
+    var body = colBody(col);
+    body.innerHTML = "";
+    var colCards = cards.filter(function(c) { return c.col === col; });
+    if (colCards.length === 0) {
+      var empty = document.createElement("div");
+      empty.className   = "col-empty";
+      empty.textContent = col === "suggested" ? "Ideas from others will appear here" : "No items yet";
+      body.appendChild(empty);
+    } else {
+      colCards.forEach(function(card) { body.appendChild(buildCard(card)); });
+    }
+    document.getElementById("count-" + col).textContent = colCards.length;
+  });
+}
+
+initFromNotion();
+</script>
+
+<!-- ── Build Plans ── -->
+<style>
+  .plans-section { padding: 48px 28px 80px; border-top: 1px solid var(--border); margin-top: 8px; }
+  .plans-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 24px; }
+  .plans-header h2 { font-size: 1.1rem; font-weight: 700; }
+  .plans-subtitle { font-size: var(--small); color: var(--muted); }
+
+  .plan-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 26px;
+    max-width: 860px;
+  }
+  .plan-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .plan-card-title { font-size: 1rem; font-weight: 700; }
+  .plan-badge {
+    font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.07em; padding: 3px 8px; border-radius: 4px;
+    background: rgba(79,142,247,0.14); color: var(--accent);
+    border: 1px solid rgba(79,142,247,0.3);
+  }
+  .plan-what { font-size: 0.85rem; color: var(--muted); line-height: 1.55; margin-bottom: 22px; }
+
+  .plan-subbuilds { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+  .plan-subbuild {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 13px 15px;
+  }
+  .plan-subbuild-header { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+  .plan-subbuild-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(79,142,247,0.15); color: var(--accent);
+    font-size: 0.68rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .plan-subbuild-name { font-size: 0.85rem; font-weight: 700; }
+  .plan-subbuild-time { font-size: 0.7rem; color: var(--muted); margin-left: auto; }
+  .plan-subbuild-done { font-size: 0.78rem; color: var(--muted); padding-left: 32px; line-height: 1.4; }
+  .plan-subbuild-done strong { color: var(--green); font-weight: 600; }
+
+  .plan-section-label {
+    font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px;
+  }
+  .plan-prompt {
+    background: #0d0f1a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 13px 15px;
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+    font-size: 0.74rem;
+    color: #9aa3c2;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+    overflow-x: auto;
+  }
+
+  .plan-out { display: flex; flex-wrap: wrap; gap: 6px; }
+  .plan-out-item {
+    font-size: 0.72rem; color: var(--muted);
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 3px 9px;
+  }
+</style>
+
+<div class="plans-section">
+  <div class="plans-header">
+    <h2>Build Plans</h2>
+    <span class="plans-subtitle">Scoped automations ready to build</span>
+  </div>
+
+  <div class="plan-card">
+    <div class="plan-card-header">
+      <span class="plan-card-title">Cloud-hosted morning brief</span>
+      <span class="plan-badge">Scoped</span>
+      <span class="priority priority-high" style="margin-left:4px;">High</span>
+    </div>
+    <p class="plan-what">Pulls from Outlook calendar, Outlook inbox (including Zoom summaries), and Slack via Chrome each weekday morning. Claude extracts action items, estimates time, separates tasks from FYIs, and delivers a styled HTML email to your Outlook inbox before you arrive — matching the layout of your personal brief.</p>
+
+    <div class="plan-section-label">Sub-builds</div>
+    <div class="plan-subbuilds">
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">1</span>
+          <span class="plan-subbuild-name">Calendar pull</span>
+          <span class="plan-subbuild-time">1–2 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Chrome reads Outlook calendar for today + this week, formats "On your calendar" HTML block. <strong>Done when:</strong> correct HTML section outputs for any weekday test run.</div>
+      </div>
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">2</span>
+          <span class="plan-subbuild-name">Slack + Outlook scanner</span>
+          <span class="plan-subbuild-time">2–3 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Reads Slack + Outlook email (prioritising Zoom summaries). Claude extracts action items with time estimates and FYIs. <strong>Done when:</strong> ≥3 prioritised items output correctly from a live session.</div>
+      </div>
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">3</span>
+          <span class="plan-subbuild-name">Assembly + delivery</span>
+          <span class="plan-subbuild-time">1–2 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Combines all sections into styled HTML email, sends to Outlook inbox. <strong>Done when:</strong> complete brief arrives in Outlook on a test weekday run.</div>
+      </div>
+    </div>
+
+    <div class="plan-section-label">Starting prompt — Sub-build 1</div>
+    <div class="plan-prompt">Build a Python script called work_brief_calendar.py that:
+
+1. Uses Claude in Chrome MCP to open or find an Outlook Web tab at outlook.office.com/calendar
+2. Navigates to the weekly calendar view
+3. Reads all events from today through end of the current work week (Mon–Fri)
+4. Formats them into an HTML &lt;section class="calendar"&gt; block
+
+Requirements: group today first, include day/date/time/name/duration,
+exclude all-day and OOO blocks, output raw HTML to stdout.</div>
+
+    <div class="plan-section-label">Out of v1</div>
+    <div class="plan-out">
+      <span class="plan-out-item">Handwritten notes</span>
+      <span class="plan-out-item">Source hyperlinks per item</span>
+      <span class="plan-out-item">Cross-source deduplication</span>
+      <span class="plan-out-item">Reply-to-update</span>
+      <span class="plan-out-item">Auto-scheduled send</span>
+      <span class="plan-out-item">Time estimate learning</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
