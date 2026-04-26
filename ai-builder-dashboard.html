@@ -486,7 +486,12 @@ function submitModal(e) {
       cards[idx].col      = modalCol;
     }
     var savedEditId = modalEditId;
-    save(cards);
+    var savedDesc = mDesc.value.trim();
+    fetch('/api/roadmap', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: savedEditId, name: name, desc: savedDesc, priority: modalPriority, col: modalCol })
+    }).catch(function(e) { console.error('Notion PUT failed', e); });
     closeModal();
     render();
     // Blue accent pulse on the updated card
@@ -502,20 +507,36 @@ function submitModal(e) {
     });
   } else {
     // ── Create new card ──
-    var card = { id:uid(), name:name, desc:mDesc.value.trim(), priority:modalPriority, col:modalCol };
-    cards.push(card);
-    save(cards);
-    closeModal();
-    render();
-    requestAnimationFrame(function() {
-      var el = document.querySelector("[data-id=\"" + card.id + "\"]");
-      if (!el) return;
-      el.scrollIntoView({ behavior:"smooth", block:"nearest" });
-      el.animate(
-        [{ opacity:0, transform:"translateY(-10px)" },
-         { opacity:1, transform:"translateY(0)" }],
-        { duration:320, easing:SPRING }
-      );
+    var submitBtn = modalForm.querySelector('.btn-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving…';
+    var newCardData = { name: name, desc: mDesc.value.trim(), priority: modalPriority, col: modalCol };
+    fetch('/api/roadmap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCardData)
+    })
+    .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(data) {
+      var card = { id: data.id, name: newCardData.name, desc: newCardData.desc, priority: newCardData.priority, col: newCardData.col };
+      cards.push(card);
+      closeModal();
+      render();
+      requestAnimationFrame(function() {
+        var el = document.querySelector("[data-id=\"" + card.id + "\"]");
+        if (!el) return;
+        el.scrollIntoView({ behavior:"smooth", block:"nearest" });
+        el.animate(
+          [{ opacity:0, transform:"translateY(-10px)" },
+           { opacity:1, transform:"translateY(0)" }],
+          { duration:320, easing:SPRING }
+        );
+      });
+    })
+    .catch(function(err) {
+      console.error('Notion POST failed', err);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Add Card';
     });
   }
 }
@@ -543,8 +564,12 @@ function deleteCard(id) {
   function doDelete() {
     var idx = cards.findIndex(function(c) { return c.id === id; });
     if (idx !== -1) cards.splice(idx, 1);
-    save(cards);
     render();
+    fetch('/api/roadmap', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id })
+    }).catch(function(e) { console.error('Notion DELETE failed', e); });
   }
   if (el) {
     var anim = el.animate(
