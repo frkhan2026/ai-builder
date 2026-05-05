@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Time Audit — Faisal Khan · May 2026</title>
+  <style>
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --surface2:  #22273a;
+      --border:    #2d3249;
+      --accent:    #5b8dee;
+      --accent2:   #7dd3b0;
+      --warn:      #f0a057;
+      --danger:    #e05c6a;
+      --text:      #e2e6f0;
+      --muted:     #8892b0;
+      --small:     #636d8a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Layout ── */
+    .wrapper { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* ── Header ── */
+    .header { border-bottom: 1px solid var(--border); padding-bottom: 28px; margin-bottom: 40px; }
+    .header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+    .header h1 { font-size: 26px; font-weight: 700; color: #fff; }
+    .header .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .badge-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 4px 12px; font-size: 13px; color: var(--muted);
+    }
+    .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent2); }
+    .goal-bar { margin-top: 20px; }
+    .goal-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .goal-label strong { color: var(--text); }
+    .progress-track { background: var(--surface2); border-radius: 6px; height: 10px; overflow: hidden; }
+    .progress-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 7.27%; /* 8k / 110k */
+      transition: width 0.6s ease;
+    }
+
+    /* ── Section titles ── */
+    .section { margin-bottom: 48px; }
+    .section-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px 24px;
+    }
+    .card + .card { margin-top: 12px; }
+
+    /* ── Stat grid ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 18px 20px;
+    }
+    .stat-card .label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .stat-card .value { font-size: 26px; font-weight: 700; color: #fff; }
+    .stat-card .sub { font-size: 12px; color: var(--small); margin-top: 4px; }
+
+    /* ── Time bars ── */
+    .time-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .time-row .cat { width: 130px; font-size: 13px; color: var(--text); flex-shrink: 0; }
+    .time-row .bar-track { flex: 1; background: var(--surface2); border-radius: 4px; height: 8px; overflow: hidden; }
+    .time-row .bar-fill { height: 100%; border-radius: 4px; }
+    .time-row .hrs { width: 70px; text-align: right; font-size: 13px; color: var(--muted); flex-shrink: 0; }
+    .bar-focus   { background: var(--accent); }
+    .bar-1on1    { background: var(--accent2); }
+    .bar-group   { background: var(--warn); }
+    .bar-mba     { background: #a78bfa; }
+    .bar-unknown { background: var(--border); }
+
+    /* ── Diagnostic chips ── */
+    .diag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 640px) { .diag-grid { grid-template-columns: 1fr; } }
+    .diag-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 18px 20px;
+    }
+    .diag-card .diag-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .diag-card .diag-value { font-size: 20px; font-weight: 700; }
+    .diag-card .diag-note { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+    .status-warn  { color: var(--warn); }
+    .status-ok    { color: var(--accent2); }
+    .status-danger{ color: var(--danger); }
+
+    /* ── Observations ── */
+    .obs { display: flex; gap: 14px; padding: 18px 20px; }
+    .obs-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .obs-body h3 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+    .obs-body p  { font-size: 14px; color: var(--muted); line-height: 1.65; }
+    .obs-body .evidence {
+      margin-top: 10px; padding: 8px 12px;
+      background: var(--surface2); border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0; font-size: 13px; color: var(--small);
+    }
+
+    /* ── Automation table ── */
+    .auto-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin-bottom: 12px;
+    }
+    .auto-header {
+      display: grid; grid-template-columns: 32px 1fr 100px 80px 90px;
+      gap: 12px; padding: 10px 20px;
+      background: var(--surface2); border-bottom: 1px solid var(--border);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--small);
+    }
+    .auto-row {
+      display: grid; grid-template-columns: 32px 1fr 100px 80px 90px;
+      gap: 12px; padding: 16px 20px; align-items: start;
+      border-bottom: 1px solid var(--border);
+    }
+    .auto-row:last-child { border-bottom: none; }
+    .auto-row:hover { background: rgba(91,141,238,0.04); }
+    @media (max-width: 700px) {
+      .auto-header { display: none; }
+      .auto-row { grid-template-columns: 32px 1fr; }
+      .auto-row .effort, .auto-row .impact, .auto-row .hours { display: none; }
+    }
+    .rank-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0;
+    }
+    .rank-1 .rank-num { background: rgba(91,141,238,0.15); border-color: var(--accent); color: var(--accent); }
+    .rank-2 .rank-num { background: rgba(125,211,176,0.15); border-color: var(--accent2); color: var(--accent2); }
+    .rank-3 .rank-num { background: rgba(240,160,87,0.15); border-color: var(--warn); color: var(--warn); }
+    .auto-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .auto-outcome { font-size: 13px; color: var(--muted); }
+    .auto-detail { font-size: 12px; color: var(--small); margin-top: 6px; }
+    .pill {
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 5px; padding: 3px 8px; font-size: 12px; font-weight: 600;
+    }
+    .pill-low   { background: rgba(125,211,176,0.12); color: var(--accent2); }
+    .pill-med   { background: rgba(240,160,87,0.12);  color: var(--warn); }
+    .pill-high  { background: rgba(224,92,106,0.12);  color: var(--danger); }
+    .pill-hours { background: rgba(91,141,238,0.12);  color: var(--accent); }
+
+    /* ── Sources footer ── */
+    .source-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+    .source-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 14px;
+    }
+    .source-item .src-name { font-size: 13px; color: var(--text); font-weight: 500; }
+    .source-item .src-status { font-size: 11px; margin-top: 4px; }
+    .src-ok   { color: var(--accent2); }
+    .src-miss { color: var(--danger); }
+
+    .footer {
+      margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--small); text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <h1>Work Time Audit</h1>
+        <div class="subtitle">Faisal Khan &nbsp;·&nbsp; Generated May 4, 2026 &nbsp;·&nbsp; Analysis window: Apr 21 – May 4, 2026</div>
+      </div>
+      <div class="badge-group">
+        <span class="badge"><span class="dot"></span>14-day window</span>
+        <span class="badge"><span class="dot" style="background:var(--warn)"></span>5 sources</span>
+      </div>
+    </div>
+    <div class="goal-bar">
+      <div class="goal-label">
+        <span>2026 Revenue Goal</span>
+        <strong>~$8,000 confirmed of $110,000 target (8 clients × avg $3,800) &nbsp;·&nbsp; 7.3%</strong>
+      </div>
+      <div class="progress-track"><div class="progress-fill"></div></div>
+    </div>
+  </div>
+
+
+  <!-- ── SECTION 1: TIME BREAKDOWN ── -->
+  <div class="section">
+    <div class="section-title">Time Breakdown — Calendar</div>
+
+    <div class="card" style="margin-bottom:16px;border-color:var(--warn);background:rgba(240,160,87,0.05);">
+      <div style="font-size:13px;color:var(--warn);font-weight:600;margin-bottom:4px;">⚠ Calendar context: coordination tool, not a work log</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.65;">Most events on this calendar are family/personal coordination blocks (Hadi activities, spouse scheduling). They reflect obligations to be aware of — not necessarily time Faisal is actively occupied. MBA consulting work is intentionally unblocked on the calendar: it happens <strong style="color:var(--text);">evenings 6–10pm and weekends 7–10am</strong> without formal entries. Calendar data below should be read accordingly.</div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label">Calendar Events Parsed</div>
+        <div class="value">71</div>
+        <div class="sub">mostly coordination blocks</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Formal MBA / Leland Events</div>
+        <div class="value" style="color: var(--muted)">2.4h</div>
+        <div class="sub">Low signal — MBA work is informal</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Confirmed MBA Work Window</div>
+        <div class="value" style="color:var(--accent2)">~4h/day</div>
+        <div class="sub">Evenings + weekend mornings</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Busiest Scheduled Day</div>
+        <div class="value">13.2h</div>
+        <div class="sub">Apr 21 — Toronto trip</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Notable recurring events visible in calendar</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="color:var(--small);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid var(--border);">
+            <th style="text-align:left;padding:6px 0;">Event</th>
+            <th style="text-align:left;padding:6px 0;">Type</th>
+            <th style="text-align:right;padding:6px 0;">Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 0;color:var(--text);">AI Builder Bootcamp</td>
+            <td><span class="pill pill-med">Learning</span></td>
+            <td style="text-align:right;color:var(--muted);">Recurring multi-week</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 0;color:var(--text);">SRVIC Muslim GameChangers</td>
+            <td><span class="pill pill-med">Community</span></td>
+            <td style="text-align:right;color:var(--muted);">Personal</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 0;color:var(--text);">Hadi activities</td>
+            <td><span class="pill pill-low">Family</span></td>
+            <td style="text-align:right;color:var(--muted);">Coordination only</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ── SECTION 1b: MAC APP USAGE ── -->
+  <div class="section">
+    <div class="section-title">Mac App Usage — knowledgeC.db</div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label">Total Active Screen Time</div>
+        <div class="value">24.4h</div>
+        <div class="sub">14-day window (personal Mac)</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Dominant App</div>
+        <div class="value">Chrome</div>
+        <div class="sub">18.3h · 75% of all screen time</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Sessions Under 5 Min</div>
+        <div class="value" style="color:var(--warn)">87%</div>
+        <div class="sub">593 of 681 sessions — extreme fragmentation</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Long Focus Blocks (≥30 min)</div>
+        <div class="value" style="color:var(--danger)">4</div>
+        <div class="sub">All between 7–11pm PT</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Claude Desktop</div>
+        <div class="value" style="color:var(--accent2)">2.8h</div>
+        <div class="sub">2nd most-used app · 111 sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Day-Job Apps on This Mac</div>
+        <div class="value" style="color:var(--accent2)">None</div>
+        <div class="sub">Slack, Outlook, Teams: 0 min — on work machine</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">App breakdown by time (14 days)</div>
+      <div class="time-row">
+        <span class="cat">Google Chrome</span>
+        <div class="bar-track"><div class="bar-fill bar-focus" style="width:75%"></div></div>
+        <span class="hrs">18.3h &nbsp;75%</span>
+      </div>
+      <div class="time-row">
+        <span class="cat">Claude Desktop</span>
+        <div class="bar-track"><div class="bar-fill bar-mba" style="width:11%"></div></div>
+        <span class="hrs">2.8h &nbsp;&nbsp;11%</span>
+      </div>
+      <div class="time-row">
+        <span class="cat">Zoom</span>
+        <div class="bar-track"><div class="bar-fill bar-1on1" style="width:6%"></div></div>
+        <span class="hrs">1.6h &nbsp;&nbsp;&nbsp;6%</span>
+      </div>
+      <div class="time-row">
+        <span class="cat">PowerPoint</span>
+        <div class="bar-track"><div class="bar-fill bar-group" style="width:4%"></div></div>
+        <span class="hrs">1.0h &nbsp;&nbsp;&nbsp;4%</span>
+      </div>
+      <div class="time-row">
+        <span class="cat">WhatsApp</span>
+        <div class="bar-track"><div class="bar-fill bar-unknown" style="width:1%"></div></div>
+        <span class="hrs">0.2h &nbsp;&nbsp;&nbsp;1%</span>
+      </div>
+      <div class="time-row">
+        <span class="cat">Excel + Word</span>
+        <div class="bar-track"><div class="bar-fill bar-unknown" style="width:1%"></div></div>
+        <span class="hrs">0.3h &nbsp;&nbsp;&nbsp;1%</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:4px;">When does this Mac actually get used? (all times Pacific)</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Timestamps confirmed UTC; converted to PT (UTC−7) below</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div style="font-size:12px;color:var(--small);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em;">By hour of day (PT)</div>
+          <!-- Midnight–6am: 0 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;">
+            <span style="width:70px;color:var(--small);">12am–6am</span>
+            <div style="flex:1;background:var(--surface2);border-radius:3px;height:6px;overflow:hidden;"><div style="width:0%;height:100%;background:var(--border);border-radius:3px;"></div></div>
+            <span style="width:40px;text-align:right;color:var(--small);">~0 min</span>
+          </div>
+          <!-- 6am–noon: 18% -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;">
+            <span style="width:70px;color:var(--text);">6am–noon</span>
+            <div style="flex:1;background:var(--surface2);border-radius:3px;height:6px;overflow:hidden;"><div style="width:18%;height:100%;background:var(--accent2);border-radius:3px;"></div></div>
+            <span style="width:40px;text-align:right;color:var(--muted);">~86 min</span>
+          </div>
+          <!-- noon–6pm: 23% -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;">
+            <span style="width:70px;color:var(--text);">noon–6pm</span>
+            <div style="flex:1;background:var(--surface2);border-radius:3px;height:6px;overflow:hidden;"><div style="width:23%;height:100%;background:var(--accent);border-radius:3px;"></div></div>
+            <span style="width:40px;text-align:right;color:var(--muted);">~103 min</span>
+          </div>
+          <!-- 6pm–midnight: 59% -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;">
+            <span style="width:70px;color:#fff;font-weight:600;">6pm–12am</span>
+            <div style="flex:1;background:var(--surface2);border-radius:3px;height:6px;overflow:hidden;"><div style="width:59%;height:100%;background:var(--warn);border-radius:3px;"></div></div>
+            <span style="width:40px;text-align:right;color:var(--warn);font-weight:600;">~625 min</span>
+          </div>
+          <div style="font-size:11px;color:var(--small);margin-top:8px;">⬆ 59% of all Mac screen time is after 6pm PT</div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--small);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em;">Long focus sessions (≥30 min, all in PT)</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:var(--surface2);border-radius:6px;padding:8px 10px;">
+              <div style="font-size:13px;color:#fff;">Sun Apr 26, 10:45pm PT</div>
+              <div style="font-size:12px;color:var(--muted);">30 min · Chrome · Sunday night deep work</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:6px;padding:8px 10px;">
+              <div style="font-size:13px;color:#fff;">Mon Apr 27, 10:45pm PT</div>
+              <div style="font-size:12px;color:var(--muted);">30 min · Chrome</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:6px;padding:8px 10px;">
+              <div style="font-size:13px;color:#fff;">Tue Apr 28, 7:04pm PT</div>
+              <div style="font-size:12px;color:var(--muted);">35 min · Chrome · first evening block</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:6px;padding:8px 10px;">
+              <div style="font-size:13px;color:#fff;">Mon Apr 27, 9:12pm PT</div>
+              <div style="font-size:12px;color:var(--muted);">42 min · Chrome · longest focus block</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--small);margin-top:8px;">All 4 extended blocks are 7–11pm PT — post-day-job MBA time</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">The hidden split: personal Mac vs. work machine</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.7;">
+        This Mac shows <strong style="color:var(--text);">zero Slack, Outlook, or Teams usage</strong> — all day-job collaboration tools. Day job (Akuramed/Shifamed) runs on a separate work computer and is completely invisible here. What this Mac captures is your <em>personal</em> time: MBA consulting, personal admin, and this session with Claude. The 24.4h over 14 days is your side-business footprint — not your total work output.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── SECTION 2: KEY DIAGNOSTICS ── -->
+  <div class="section">
+    <div class="section-title">Key Diagnostics</div>
+
+    <div class="diag-grid">
+      <div class="diag-card">
+        <div class="diag-label">Context switching rate (personal Mac)</div>
+        <div class="diag-value status-danger">EXTREME</div>
+        <div class="diag-note">87% of Mac sessions under 5 minutes. Only 4 focus blocks ≥30 min in 14 days, all 7–11pm PT. Consistent with working in fragmented evening windows after a full day job — not distraction, but structural.</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-label">Actual MBA work window</div>
+        <div class="diag-value status-warn">~4h/day</div>
+        <div class="diag-note">Evenings 6–10pm PT + weekend mornings 7–10am PT. Confirmed by Mac usage pattern (59% of screen time post-6pm) and Faisal's own working style. No formal calendar blocks — this is intentional.</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-label">Reactive vs. proactive (MBA)</div>
+        <div class="diag-value status-danger">~80% reactive</div>
+        <div class="diag-note">Essay reviews, client emails, and testimonial follow-ups are inbound-triggered. Lead nurture is now automated (good). Biggest proactive gap: seminars and LinkedIn — neither has a scheduled cadence.</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-label">Client delivery capacity (Aug–Nov)</div>
+        <div class="diag-value status-danger">Constrained</div>
+        <div class="diag-note">Essay + resume feedback is the #1 time cost during application season — and the ceiling on how many clients Faisal can take. Currently done from scratch each time. No AI-assisted first pass exists yet.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:12px;">Top 3 time drains</div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="background:rgba(224,92,106,0.15);border:1px solid var(--danger);color:var(--danger);border-radius:6px;padding:4px 10px;font-size:13px;font-weight:700;flex-shrink:0;">1</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#fff;">Essay &amp; resume feedback — written from scratch every time</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:3px;">The single biggest time cost during application season (Aug–Nov). Each client draft requires a full read + original written feedback. This is also the ceiling on how many clients you can take. No first-pass system exists — every comment is created from zero.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="background:rgba(240,160,87,0.15);border:1px solid var(--warn);color:var(--warn);border-radius:6px;padding:4px 10px;font-size:13px;font-weight:700;flex-shrink:0;">2</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#fff;">No daily visibility into pipeline status</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:3px;">Lead and client status lives in a spreadsheet you have to actively navigate. There's no automatic morning summary of who needs action, who's stalled, and what's due — unlike the Akura work brief you already receive. This gap causes drop-offs during busy periods.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="background:rgba(91,141,238,0.15);border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:4px 10px;font-size:13px;font-weight:700;flex-shrink:0;">3</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#fff;">Testimonial chasing (manual, undocumented)</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:3px;">At least 3 clients (Jeffrey Park, Utkarsh Mehta, Michael Kaufmann) required individual follow-up emails for testimonials. No timing trigger, no template. Leland ranking and LinkedIn credibility both depend on this flow working consistently.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── SECTION 3: SHARP OBSERVATIONS ── -->
+  <div class="section">
+    <div class="section-title">Sharp Observations</div>
+
+    <div class="card obs">
+      <div class="obs-num">1</div>
+      <div class="obs-body">
+        <h3>Essay and resume feedback is the real constraint — and it's about to get much more expensive</h3>
+        <p>Right now you have 3 active delivery clients. In August you'll likely have 15–25. Every feedback cycle is built from scratch — read the draft, write every comment, return the doc. There's no first-pass system, no template that captures your 17 years of principles, no AI assist that does the 60% of every review that is pattern-recognition. This is the one bottleneck that directly limits how many clients you can take, and therefore how close you get to $110k.</p>
+        <div class="evidence">Evidence: Active clients in Gmail — Chloe Ng, Julia Sansing, Martin Rainer · CLAUDE.md contains your full feedback framework but it isn't connected to your review workflow yet</div>
+      </div>
+    </div>
+
+    <div class="card obs" style="margin-top:12px;">
+      <div class="obs-num">2</div>
+      <div class="obs-body">
+        <h3>You built the lead system — now you need visibility into it every morning</h3>
+        <p>The automated lead nurture sequence you built this year is real infrastructure — a script runs every morning, checks last outreach dates, and drafts follow-up emails. That's good. But the pipeline review is still passive: you have to open the spreadsheet to know who's stalling, who's ready to sign, and what's next. The Akura brief you already receive every morning proves this pattern works for you. The MBA version of that brief doesn't exist yet.</p>
+        <div class="evidence">Evidence: Lead nurture sequence confirmed in 2026 Clients sheet (Leads tab) · Akura daily brief model already established · 12+ active leads in current window with no unified status view</div>
+      </div>
+    </div>
+
+    <div class="card obs" style="margin-top:12px;">
+      <div class="obs-num">3</div>
+      <div class="obs-body">
+        <h3>Your social proof pipeline is leaking at exactly the wrong moment</h3>
+        <p>Three post-cycle clients required individual testimonial follow-up nudges — meaning the ask came too late, got buried, and needed a second touch. Leland ranking and LinkedIn credibility are your highest-ROI lead conversion assets during May–July, but they depend on a collection flow that runs on memory rather than automation. During your busiest periods, memory is the first thing that fails.</p>
+        <div class="evidence">Evidence: Jeffrey Park, Utkarsh Mehta, Michael Kaufmann all required manual second-ask emails in Gmail sent history · No calendar trigger or template for testimonial timing</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── SECTION 4: AUTOMATION OPPORTUNITIES ── -->
+  <div class="section">
+    <div class="section-title">Automation Opportunities</div>
+
+    <div class="auto-card">
+      <div class="auto-header">
+        <div>#</div>
+        <div>Opportunity</div>
+        <div>Effort</div>
+        <div>Hrs/wk saved</div>
+        <div>Impact × Goal</div>
+      </div>
+
+      <!-- 1 -->
+      <div class="auto-row rank-1">
+        <div class="rank-num">1</div>
+        <div>
+          <div class="auto-title">Essay &amp; resume first-pass feedback drafts</div>
+          <div class="auto-outcome">Claude reads client Google Doc drafts and generates structured feedback in Faisal's voice — STAR gaps flagged, Leadership Attributes scored, essay clichés named, concrete rewrites suggested. Faisal reviews, edits, and adds the final judgment. Not a replacement — a 60–70% reduction in drafting time per review.</div>
+          <div class="auto-detail">Current: read draft → write all feedback from scratch → return doc. With assist: doc shared → Claude pre-annotates using CLAUDE.md framework → Faisal edits and signs off. Active clients now: Chloe Ng, Julia Sansing, Martin Rainer. At peak load (Aug–Nov) this handles 15–25 clients simultaneously. <strong style="color:var(--accent);">This is the capacity unlock that gets you to $110k.</strong></div>
+        </div>
+        <div class="effort"><span class="pill pill-med">Medium</span></div>
+        <div class="hours"><span class="pill pill-hours">4–8 h/wk</span></div>
+        <div class="impact" style="font-size:12px;color:var(--accent);font-weight:700;">🔴 #1 Priority<br><span style="color:var(--small);font-weight:400;">Capacity unlock</span></div>
+      </div>
+
+      <!-- 2 -->
+      <div class="auto-row rank-2">
+        <div class="rank-num">2</div>
+        <div>
+          <div class="auto-title">Daily MBA pipeline digest (inbox, like the Akura brief)</div>
+          <div class="auto-outcome">Every morning: a structured digest lands in your inbox showing lead status, client delivery queue, and action items — pulled from the 2026 Clients sheet and recent Gmail threads. Same format as the Akura work brief you already use. Know exactly where every lead and client stands before you sit down to work in the evening.</div>
+          <div class="auto-detail">Current: mental model + manual spreadsheet navigation. Pipeline status only visible if you open the sheet. Digest model: Claude reads Leads tab + client threads at 7am → formats status by person → emails to Gmail inbox. Structure: 3 sections — Leads to action today, Active clients with pending deliverables, Stalled items older than 7 days.</div>
+        </div>
+        <div class="effort"><span class="pill pill-low">Low</span></div>
+        <div class="hours"><span class="pill pill-hours">1–2 h/wk</span></div>
+        <div class="impact" style="font-size:12px;color:var(--accent2);font-weight:700;">🟢 High<br><span style="color:var(--small);font-weight:400;">Daily visibility</span></div>
+      </div>
+
+      <!-- 3 -->
+      <div class="auto-row rank-3">
+        <div class="rank-num">3</div>
+        <div>
+          <div class="auto-title">Lead nurture sequence — optimization (already built)</div>
+          <div class="auto-outcome">The automated morning script (last-outreach check → email draft) is real infrastructure and working. Opportunities to improve: (a) personalize drafts by school target and application timeline, (b) add a scoring layer to flag highest-intent leads for manual outreach, (c) incorporate seminar invites as a nurture touchpoint.</div>
+          <div class="auto-detail">Current system: script runs daily → checks last outreach date in Leads tab → drafts follow-up for review. Optimization levers: more personalized copy using lead's target schools, a lead score column (days since last contact + response rate + school fit), auto-suggest webinar/seminar invite when a relevant event is coming.</div>
+        </div>
+        <div class="effort"><span class="pill pill-low">Low</span></div>
+        <div class="hours"><span class="pill pill-hours">1–2 h/wk</span></div>
+        <div class="impact" style="font-size:12px;color:var(--warn);font-weight:700;">🟡 High ROI<br><span style="color:var(--small);font-weight:400;">May–Jul close rate</span></div>
+      </div>
+
+      <!-- 4 -->
+      <div class="auto-row">
+        <div class="rank-num">4</div>
+        <div>
+          <div class="auto-title">Testimonial collection — triggered, not remembered</div>
+          <div class="auto-outcome">Two-touch testimonial sequence fires automatically after a client's R1 deadline: first ask at +14 days, nudge at +35 days. Email drafted in Faisal's voice from the final client thread so it reads as continuous conversation, not a cold ask.</div>
+          <div class="auto-detail">Current: relies on memory → opens Gmail → writes fresh each time. 3 missed/delayed asks confirmed (Jeffrey Park, Utkarsh Mehta, Michael Kaufmann). Automated: R1 deadline date in client sheet triggers draft → Faisal approves + sends. One-time setup; runs every cycle automatically.</div>
+        </div>
+        <div class="effort"><span class="pill pill-low">Low</span></div>
+        <div class="hours"><span class="pill pill-hours">1 h/wk</span></div>
+        <div class="impact" style="font-size:12px;color:var(--warn);font-weight:700;">🟡 Medium<br><span style="color:var(--small);font-weight:400;">Leland ranking</span></div>
+      </div>
+
+      <!-- 5 -->
+      <div class="auto-row">
+        <div class="rank-num">5</div>
+        <div>
+          <div class="auto-title">Seminar content calendar + promotion drafts</div>
+          <div class="auto-outcome">Monthly seminar plan tied to application cycle stage: May = positioning + school selection, June = essay strategy, July = differentiating your story, Aug = R1 crunch. Claude proposes topics + draft LinkedIn promo copy. Zero seminars scheduled in the current 14-day window — this is inactive during the most important lead-gen period of the year.</div>
+          <div class="auto-detail">Current: ad-hoc when time allows. Automated: monthly Claude session → 2 seminar topics proposed → Faisal approves → calendar event + Leland event description + LinkedIn post drafted in one pass.</div>
+        </div>
+        <div class="effort"><span class="pill pill-low">Low</span></div>
+        <div class="hours"><span class="pill pill-hours">2 h/wk</span></div>
+        <div class="impact" style="font-size:12px;color:var(--warn);font-weight:700;">🟡 Medium<br><span style="color:var(--small);font-weight:400;">Lead gen brand</span></div>
+      </div>
+
+      <!-- 6 -->
+      <div class="auto-row">
+        <div class="rank-num">6</div>
+        <div>
+          <div class="auto-title">LinkedIn post pipeline from 17-year archive</div>
+          <div class="auto-outcome">Convert pattern observations from the archive + current client work into 2–3 LinkedIn posts per week in Faisal's voice. Topics: positioning mistakes, school selection frameworks, essay traps, interview signals. No LinkedIn content cadence is currently visible — brand is dark during lead season.</div>
+          <div class="auto-detail">Current: no regular cadence. Automated: weekly 10-min Claude session → 3 draft posts → Faisal approves/edits → scheduled or posted. Source material: CLAUDE.md coaching principles, archive docs, current client patterns, MBA admissions news cycle.</div>
+        </div>
+        <div class="effort"><span class="pill pill-med">Medium</span></div>
+        <div class="hours"><span class="pill pill-hours">1–2 h/wk</span></div>
+        <div class="impact" style="font-size:12px;color:var(--accent);font-weight:700;">🔵 Compound<br><span style="color:var(--small);font-weight:400;">Brand + inbound</span></div>
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:12px;border-color:rgba(91,141,238,0.3);background:rgba(91,141,238,0.04);">
+      <div style="font-size:13px;color:var(--muted);line-height:1.65;"><strong style="color:var(--text);">Family calendar automation (lower priority):</strong> Calendar shows family coordination blocks (Hadi activities, etc.). Opportunistic automation — e.g. reminders, scheduling shortcuts, or logistics drafts — can be built here if useful, but these are below the business priorities above.</div>
+    </div>
+  </div>
+
+
+  <!-- ── SECTION 5: GOAL ALIGNMENT ── -->
+  <div class="section">
+    <div class="section-title">Goal Alignment View</div>
+    <div class="card">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="color:var(--small);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid var(--border);">
+            <th style="text-align:left;padding:8px 0;">Activity</th>
+            <th style="text-align:center;padding:8px 0;">% of current time</th>
+            <th style="text-align:center;padding:8px 0;">% it should be (May–Jul)</th>
+            <th style="text-align:left;padding:8px 0;">Gap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 0;color:var(--text);">Day-job work (Akuramed)</td>
+            <td style="text-align:center;color:var(--muted);">Separate machine</td>
+            <td style="text-align:center;color:var(--muted);">Fixed constraint</td>
+            <td style="color:var(--muted);">Not visible on personal Mac — managed around it</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 0;color:var(--text);">Lead conversion (MBA)</td>
+            <td style="text-align:center;color:var(--accent2);">Automated ✓</td>
+            <td style="text-align:center;color:var(--accent2);">Maintain + optimize</td>
+            <td style="color:var(--accent2);">Sequence built — improve personalization + scoring</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 0;color:var(--text);">Client delivery (essays/resume)</td>
+            <td style="text-align:center;color:var(--danger);">Manual, from scratch</td>
+            <td style="text-align:center;color:var(--accent2);">AI-assisted first pass</td>
+            <td style="color:var(--danger);">⬆⬆ #1 priority — this is the capacity ceiling</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 0;color:var(--text);">Pipeline visibility (daily digest)</td>
+            <td style="text-align:center;color:var(--danger);">Manual/none</td>
+            <td style="text-align:center;color:var(--accent2);">Daily inbox brief</td>
+            <td style="color:var(--warn);">⬆ High priority — same model as Akura brief</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 0;color:var(--text);">Seminar / content / LinkedIn</td>
+            <td style="text-align:center;color:var(--danger);">~0%</td>
+            <td style="text-align:center;color:var(--accent2);">~4%</td>
+            <td style="color:var(--danger);">⬆ Brand is dark during lead season</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 0;color:var(--text);">Admin (testimonials, invoicing)</td>
+            <td style="text-align:center;color:var(--warn);">~6%</td>
+            <td style="text-align:center;color:var(--accent2);">&lt;2%</td>
+            <td style="color:var(--warn);">⬇ Automate triggers — remove from working memory</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ── SECTION 6: DATA SOURCES ── -->
+  <div class="section">
+    <div class="section-title">Data Sources</div>
+    <div class="source-grid">
+      <div class="source-item">
+        <div class="src-name">Google Calendar</div>
+        <div class="src-status src-ok">✓ 71 events · 14 days</div>
+      </div>
+      <div class="source-item">
+        <div class="src-name">Gmail (sent + inbox)</div>
+        <div class="src-status src-ok">✓ ~50 MBA threads · 30 days</div>
+      </div>
+      <div class="source-item">
+        <div class="src-name">Chrome History</div>
+        <div class="src-status src-ok">✓ Default profile · 14 days</div>
+      </div>
+      <div class="source-item">
+        <div class="src-name">Slack</div>
+        <div class="src-status src-ok">✓ shifamed.slack.com</div>
+      </div>
+      <div class="source-item">
+        <div class="src-name">Mac App Usage</div>
+        <div class="src-status src-ok">✓ knowledgeC.db · 681 sessions</div>
+      </div>
+      <div class="source-item">
+        <div class="src-name">Leland Earnings</div>
+        <div class="src-status src-ok">✓ $121k lifetime · 8 clients</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px;font-size:13px;color:var(--muted);">
+      <strong style="color:var(--text);">Note on Mac app data:</strong> knowledgeC.db captures foreground app usage on this personal Mac only. Day-job work (Slack, Outlook, Teams) runs on a separate Akuramed/Shifamed work computer and is not reflected here. Chrome's 75% share is split between MBA consulting tasks and personal browsing — Chrome history provides the domain-level breakdown that separates them.
+    </div>
+  </div>
+
+
+  <!-- ── FOOTER ── -->
+  <div class="footer">
+    Generated by Claude · Personal Automation · May 4, 2026 &nbsp;·&nbsp;
+    Goal: $110,000 in 2026 MBA application cycle revenue &nbsp;·&nbsp;
+    <a href="https://docs.google.com/spreadsheets/d/15sssZ1AKocEhDT16toIARpP_16glyzsg_RRhL4vvfeQ">2026 Client Sheet</a>
+  </div>
+
+</div>
+</body>
+</html>

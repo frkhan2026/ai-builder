@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MBA Automation Roadmap — Faisal Khan</title>
+<style>
+/* ── Reset & Root ──────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #0d0f1a;
+  --surface:   #141726;
+  --surface2:  #0e1020;
+  --card:      #181c2e;
+  --card2:     #1d2138;
+  --border:    #252840;
+  --accent:    #4f8ef7;
+  --green:     #34c97b;
+  --yellow:    #f5c842;
+  --red:       #e05c6a;
+  --text:      #f0f2ff;
+  --muted:     #8892b0;
+  --small:     #636d8a;
+  --high-bg:   rgba(224, 92, 106, 0.18);
+  --high-fg:   #e05c6a;
+  --med-bg:    rgba(245, 200, 66, 0.14);
+  --med-fg:    #f5c842;
+  --low-bg:    rgba(100, 116, 139, 0.18);
+  --low-fg:    #8892b0;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Page Header ───────────────────────────────────────────────────────────── */
+.page-header {
+  padding: 28px 28px 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.header-left { display: flex; flex-direction: column; gap: 6px; }
+.back-link {
+  font-size: 0.78rem;
+  color: var(--accent);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+.back-link:hover { opacity: 1; }
+.page-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.page-sub {
+  font-size: 0.76rem;
+  color: var(--small);
+  margin-top: 2px;
+}
+.new-card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 0.15s, transform 0.1s;
+  flex-shrink: 0;
+  align-self: center;
+}
+.new-card-btn:hover  { filter: brightness(1.12); }
+.new-card-btn:active { transform: scale(0.97); }
+
+/* ── Kanban Board ──────────────────────────────────────────────────────────── */
+.kanban {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  padding: 0 20px 24px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .kanban { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .kanban { grid-template-columns: 1fr; }
+}
+
+/* ── Column ────────────────────────────────────────────────────────────────── */
+.k-col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+}
+.k-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.k-col-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.k-col-label.lbl-suggested { color: var(--muted); }
+.k-col-label.lbl-tobuild   { color: var(--accent); }
+.k-col-label.lbl-inprogress{ color: var(--yellow); }
+.k-col-label.lbl-done      { color: var(--green); }
+
+.k-col-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+.cnt-suggested { background: rgba(136,146,176,0.15); color: var(--muted); }
+.cnt-tobuild   { background: rgba(79,142,247,0.18);  color: var(--accent); }
+.cnt-inprogress{ background: rgba(245,200,66,0.18);  color: var(--yellow); }
+.cnt-done      { background: rgba(52,201,123,0.18);  color: var(--green); }
+
+.col-body {
+  flex: 1;
+  padding: 10px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: background 0.15s;
+}
+.col-body.drag-over {
+  background: rgba(79,142,247,0.05);
+  border-radius: 0 0 14px 14px;
+}
+.col-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  color: var(--small);
+  font-style: italic;
+  min-height: 80px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* ── Card ──────────────────────────────────────────────────────────────────── */
+.k-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 14px 11px;
+  cursor: grab;
+  position: relative;
+  user-select: none;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.k-card:hover {
+  border-color: rgba(79,142,247,0.35);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+}
+.k-card:active { cursor: grabbing; }
+.k-card--source { opacity: 0.35; }
+.k-card--placeholder {
+  background: rgba(79,142,247,0.06);
+  border: 2px dashed rgba(79,142,247,0.3);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+/* Done column — muted + strikethrough */
+#col-done .k-card { opacity: 0.6; }
+#col-done .k-card-name { text-decoration: line-through; color: var(--muted); }
+
+/* Card action buttons (edit / delete) */
+.k-card-actions {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  gap: 4px;
+}
+.k-card:hover .k-card-actions { display: flex; }
+.k-act-btn {
+  width: 24px; height: 24px;
+  border-radius: 5px;
+  border: none;
+  background: rgba(255,255,255,0.07);
+  color: var(--muted);
+  font-size: 0.72rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+.k-act-btn:hover { background: rgba(255,255,255,0.14); color: var(--text); }
+.k-del-btn:hover { background: rgba(224,92,106,0.2); color: var(--red); }
+
+.k-card-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 5px;
+  padding-right: 48px;
+  line-height: 1.35;
+}
+.k-card-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.k-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.drag-hint {
+  font-size: 0.62rem;
+  color: var(--small);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.k-card:hover .drag-hint { opacity: 1; }
+
+/* Priority badges */
+.priority {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+.priority-high   { background: var(--high-bg); color: var(--high-fg); }
+.priority-medium { background: var(--med-bg);  color: var(--med-fg); }
+.priority-low    { background: var(--low-bg);  color: var(--low-fg); }
+
+/* Delete confirm overlay */
+.k-confirm {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: rgba(13,15,26,0.93);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  backdrop-filter: blur(2px);
+  z-index: 10;
+}
+.k-confirm-label { font-size: 0.82rem; color: var(--text); font-weight: 600; }
+.k-confirm-btns  { display: flex; gap: 8px; }
+.k-confirm-yes, .k-confirm-no {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.12s;
+}
+.k-confirm-yes { background: var(--red); color: #fff; }
+.k-confirm-no  { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+.k-confirm-yes:hover, .k-confirm-no:hover { filter: brightness(1.15); }
+
+/* ── Modal ─────────────────────────────────────────────────────────────────── */
+#modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+#modal-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 26px 22px;
+  width: min(480px, calc(100vw - 32px));
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+#modal-title { font-size: 1rem; font-weight: 700; }
+#modal-close {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+#modal-close:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+
+.modal-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 6px;
+  display: block;
+}
+.modal-input, .modal-textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 9px 12px;
+  font-size: 0.85rem;
+  color: var(--text);
+  font-family: inherit;
+  transition: border-color 0.15s;
+  outline: none;
+  margin-bottom: 14px;
+}
+.modal-input:focus, .modal-textarea:focus { border-color: var(--accent); }
+.modal-input.is-error { border-color: var(--red); }
+.modal-textarea { resize: vertical; min-height: 72px; }
+
+.modal-row { margin-bottom: 14px; }
+.btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.pri-btn, .col-pick-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 0.73rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.pri-btn:hover, .col-pick-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pri-btn.is-active[data-p="high"]   { background: var(--high-bg); color: var(--high-fg); border-color: var(--high-fg); }
+.pri-btn.is-active[data-p="medium"] { background: var(--med-bg);  color: var(--med-fg);  border-color: var(--med-fg); }
+.pri-btn.is-active[data-p="low"]    { background: var(--low-bg);  color: var(--low-fg);  border-color: var(--low-fg); }
+.col-pick-btn.is-active { background: rgba(79,142,247,0.15); color: var(--accent); border-color: var(--accent); }
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+.btn-cancel, .btn-submit {
+  padding: 8px 18px;
+  border-radius: 7px;
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.12s, transform 0.1s;
+}
+.btn-cancel { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+.btn-submit { background: var(--accent); color: #fff; }
+.btn-cancel:hover, .btn-submit:hover  { filter: brightness(1.12); }
+.btn-cancel:active, .btn-submit:active { transform: scale(0.97); }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Footer ────────────────────────────────────────────────────────────────── */
+.page-footer {
+  text-align: center;
+  padding: 20px 24px 28px;
+  font-size: 0.72rem;
+  color: var(--small);
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Page Header ── -->
+<div class="page-header">
+  <div class="header-left">
+    <a class="back-link" href="time-audit.html">← Full MBA Time Audit</a>
+    <div class="page-title">MBA Automation Roadmap</div>
+    <div class="page-sub">Drag to move &nbsp;·&nbsp; Click to advance &nbsp;·&nbsp; Right-click to go back &nbsp;·&nbsp; Synced to Notion &nbsp;·&nbsp; May 2026</div>
+  </div>
+  <button class="new-card-btn" id="new-card-btn">&#43; New Card</button>
+</div>
+
+<!-- ── Kanban Board ── -->
+<div class="kanban">
+
+  <!-- Suggested -->
+  <div class="k-col" id="col-suggested">
+    <div class="k-col-header">
+      <span class="k-col-label lbl-suggested">Suggested</span>
+      <span class="k-col-count cnt-suggested" id="count-suggested">0</span>
+    </div>
+    <div class="col-body" id="body-suggested"></div>
+  </div>
+
+  <!-- To Build -->
+  <div class="k-col" id="col-tobuild">
+    <div class="k-col-header">
+      <span class="k-col-label lbl-tobuild">To Build</span>
+      <span class="k-col-count cnt-tobuild" id="count-tobuild">0</span>
+    </div>
+    <div class="col-body" id="body-tobuild"></div>
+  </div>
+
+  <!-- In Progress -->
+  <div class="k-col" id="col-inprogress">
+    <div class="k-col-header">
+      <span class="k-col-label lbl-inprogress">In Progress</span>
+      <span class="k-col-count cnt-inprogress" id="count-inprogress">0</span>
+    </div>
+    <div class="col-body" id="body-inprogress"></div>
+  </div>
+
+  <!-- Done -->
+  <div class="k-col" id="col-done">
+    <div class="k-col-header">
+      <span class="k-col-label lbl-done">Done</span>
+      <span class="k-col-count cnt-done" id="count-done">0</span>
+    </div>
+    <div class="col-body" id="body-done"></div>
+  </div>
+
+</div>
+
+<!-- ── Footer ── -->
+<div class="page-footer">
+  MBA Consulting Automation Portfolio &nbsp;·&nbsp; Faisal Khan &nbsp;·&nbsp; May 2026
+</div>
+
+<!-- ── Add / Edit Modal ── -->
+<div id="modal-overlay">
+  <div id="modal-panel">
+    <div class="modal-header">
+      <span id="modal-title">New Card</span>
+      <button id="modal-close">&#10005;</button>
+    </div>
+    <form id="modal-form" autocomplete="off">
+      <label class="modal-label" for="m-name">Name*</label>
+      <input class="modal-input" id="m-name" type="text" placeholder="Automation name" maxlength="120"/>
+
+      <label class="modal-label" for="m-desc">Description</label>
+      <textarea class="modal-textarea" id="m-desc" placeholder="What does it do?" maxlength="400"></textarea>
+
+      <div class="modal-row">
+        <label class="modal-label">Priority</label>
+        <div class="btn-group">
+          <button type="button" class="pri-btn" data-p="high">High</button>
+          <button type="button" class="pri-btn" data-p="medium">Medium</button>
+          <button type="button" class="pri-btn" data-p="low">Low</button>
+        </div>
+      </div>
+
+      <div class="modal-row">
+        <label class="modal-label">Column</label>
+        <div class="btn-group">
+          <button type="button" class="col-pick-btn" data-c="suggested">Suggested</button>
+          <button type="button" class="col-pick-btn" data-c="tobuild">To Build</button>
+          <button type="button" class="col-pick-btn" data-c="inprogress">In Progress</button>
+          <button type="button" class="col-pick-btn" data-c="done">Done</button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="modal-cancel">Cancel</button>
+        <button type="submit" class="btn-submit">Add Card</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ── Constants ─────────────────────────────────────────────────────────────────
+var DEFAULT_CARDS = [
+  {
+    id: "mba-01",
+    name: "Essay & Resume AI First-Pass",
+    desc: "Claude reads client Google Doc drafts and generates structured feedback in Faisal's voice — STAR gaps flagged, Leadership Attributes scored, essay clichés named, concrete rewrites suggested. Faisal reviews, edits, and signs off. Cuts drafting time 60–70% per review.",
+    priority: "high",
+    col: "tobuild"
+  },
+  {
+    id: "mba-02",
+    name: "Daily MBA Pipeline Digest",
+    desc: "Every morning: structured digest in inbox showing lead status, client delivery queue, and action items — pulled from 2026 Clients sheet + recent Gmail threads. Same model as the Akura work brief.",
+    priority: "high",
+    col: "tobuild"
+  },
+  {
+    id: "mba-03",
+    name: "Lead Nurture Sequence Optimizer",
+    desc: "Existing morning script checks last-outreach dates and drafts follow-ups. Optimize with: personalized copy by target school + timeline, lead scoring column (days since contact + response rate), seminar invite trigger when relevant event is scheduled.",
+    priority: "high",
+    col: "inprogress"
+  },
+  {
+    id: "mba-04",
+    name: "Testimonial Collection Trigger",
+    desc: "Two-touch sequence fires after client's R1 deadline: first ask at +14 days, nudge at +35. Email drafted in Faisal's voice from the final client thread so it reads as continuous — not a cold ask. Set once, runs every cycle.",
+    priority: "medium",
+    col: "tobuild"
+  },
+  {
+    id: "mba-05",
+    name: "Seminar Content Calendar",
+    desc: "Monthly seminar plan tied to cycle stage: May = positioning, June = school selection, July = essay strategy, Aug = R1 crunch. Claude proposes topics + LinkedIn promo copy + Leland event description in one pass. Currently zero seminars scheduled during peak lead-gen season.",
+    priority: "medium",
+    col: "tobuild"
+  },
+  {
+    id: "mba-06",
+    name: "LinkedIn Post Pipeline",
+    desc: "Convert 17-year archive + current client patterns into 2–3 posts/week in Faisal's voice. Weekly 10-min Claude session → 3 drafts → Faisal approves → scheduled. Topics: positioning mistakes, school selection, essay traps, interview signals.",
+    priority: "medium",
+    col: "tobuild"
+  }
+];
+
+var STORAGE_KEY = "mba_kanban_v1";
+var COL_ORDER   = ["suggested", "tobuild", "inprogress", "done"];
+var SPRING      = "cubic-bezier(0.34, 1.56, 0.64, 1)";
+var EASE_OUT    = "cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+var THRESHOLD   = 5;
+var CONFETTI_SPECS = [
+  { w:"7px", h:"7px", r:"50%",  color:"#34c97b" },
+  { w:"5px", h:"5px", r:"2px",  color:"#4f8ef7" },
+  { w:"6px", h:"6px", r:"50%",  color:"#f5c842" },
+  { w:"4px", h:"7px", r:"2px",  color:"#7c5cbf" },
+  { w:"6px", h:"6px", r:"50%",  color:"#f0874a" }
+];
+
+// ── Persistence ───────────────────────────────────────────────────────────────
+function save() {}
+
+function patchStatus(id, col) {
+  fetch('/api/roadmap', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: id, col: col })
+  }).catch(function() {});
+}
+
+function load() {
+  fetch('/api/roadmap')
+    .then(function(r) { return r.json(); })
+    .then(function(data) { cards = data; render(); })
+    .catch(function() {
+      cards = DEFAULT_CARDS.map(function(c) { return Object.assign({}, c); });
+      render();
+    });
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+var cards = [];
+var placeholder  = null;
+var dragState    = null;
+var modalPriority = "medium";
+var modalCol      = "tobuild";
+var modalEditId   = null;
+
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+var modalOverlay = document.getElementById("modal-overlay");
+var modalPanel   = document.getElementById("modal-panel");
+var modalForm    = document.getElementById("modal-form");
+var mName        = document.getElementById("m-name");
+var mDesc        = document.getElementById("m-desc");
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function colBody(col) { return document.getElementById("body-" + col); }
+function priorityClass(p) { return p === "high" ? "priority-high" : p === "medium" ? "priority-medium" : "priority-low"; }
+function priorityLabel(p) { return p === "high" ? "High" : p === "medium" ? "Medium" : "Low"; }
+function uid() { return "mba-" + Date.now() + "-" + Math.floor(Math.random() * 9999); }
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function setPriority(p) {
+  modalPriority = p;
+  document.querySelectorAll(".pri-btn").forEach(function(b) {
+    b.classList.toggle("is-active", b.dataset.p === p);
+  });
+}
+function setCol(c) {
+  modalCol = c;
+  document.querySelectorAll(".col-pick-btn").forEach(function(b) {
+    b.classList.toggle("is-active", b.dataset.c === c);
+  });
+}
+function openModal(cardToEdit) {
+  var isEdit = !!cardToEdit;
+  modalEditId = isEdit ? cardToEdit.id : null;
+  mName.value = isEdit ? cardToEdit.name : "";
+  mDesc.value = isEdit ? (cardToEdit.desc || "") : "";
+  mName.classList.remove("is-error");
+  setPriority(isEdit ? cardToEdit.priority : "medium");
+  setCol(isEdit ? cardToEdit.col : "tobuild");
+  document.getElementById("modal-title").textContent = isEdit ? "Edit Card" : "New Card";
+  document.querySelector(".btn-submit").textContent  = isEdit ? "Save Changes" : "Add Card";
+  modalOverlay.style.display = "flex";
+  modalOverlay.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: "ease-out" });
+  modalPanel.animate(
+    [{ opacity: 0, transform: "scale(0.95) translateY(8px)" }, { opacity: 1, transform: "none" }],
+    { duration: 240, easing: SPRING }
+  );
+  requestAnimationFrame(function() { mName.focus(); });
+}
+function closeModal() {
+  var anim = modalOverlay.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: "ease-in", fill: "forwards" });
+  anim.onfinish = function() { modalOverlay.style.display = "none"; anim.cancel(); };
+}
+function submitModal(e) {
+  e.preventDefault();
+  var name = mName.value.trim();
+  if (!name) {
+    mName.classList.add("is-error");
+    mName.focus();
+    mName.animate(
+      [{ transform: "translateX(0)" }, { transform: "translateX(-6px)" }, { transform: "translateX(6px)" }, { transform: "translateX(0)" }],
+      { duration: 220, easing: "ease-out" }
+    );
+    return;
+  }
+  if (modalEditId) {
+    var idx = cards.findIndex(function(c) { return c.id === modalEditId; });
+    if (idx !== -1) {
+      var prevCol = cards[idx].col;
+      cards[idx].name     = name;
+      cards[idx].desc     = mDesc.value.trim();
+      cards[idx].priority = modalPriority;
+      cards[idx].col      = modalCol;
+      if (prevCol !== modalCol) patchStatus(modalEditId, modalCol);
+    }
+    var savedId = modalEditId;
+    closeModal();
+    render();
+    requestAnimationFrame(function() {
+      var el = document.querySelector("[data-id=\"" + savedId + "\"]");
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      el.animate(
+        [{ boxShadow: "0 0 0 3px rgba(79,142,247,0.55)" }, { boxShadow: "0 0 0 0 rgba(79,142,247,0)" }],
+        { duration: 550, easing: "ease-out" }
+      );
+    });
+  } else {
+    var newCard = { id: uid(), name: name, desc: mDesc.value.trim(), priority: modalPriority, col: modalCol };
+    cards.push(newCard);
+    closeModal();
+    render();
+    requestAnimationFrame(function() {
+      var el = document.querySelector("[data-id=\"" + newCard.id + "\"]");
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      el.animate(
+        [{ opacity: 0, transform: "translateY(-10px)" }, { opacity: 1, transform: "translateY(0)" }],
+        { duration: 320, easing: SPRING }
+      );
+    });
+    fetch('/api/roadmap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newCard.name, desc: newCard.desc, priority: newCard.priority, col: newCard.col })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.id) {
+        var idx = cards.findIndex(function(c) { return c.id === newCard.id; });
+        if (idx !== -1) {
+          cards[idx].id = data.id;
+          var el = document.querySelector('[data-id="' + newCard.id + '"]');
+          if (el) el.dataset.id = data.id;
+        }
+      }
+    })
+    .catch(function() {});
+  }
+}
+
+// Wire modal controls
+document.getElementById("new-card-btn").addEventListener("click", function() { openModal(); });
+document.getElementById("modal-close").addEventListener("click", closeModal);
+document.getElementById("modal-cancel").addEventListener("click", closeModal);
+modalOverlay.addEventListener("click", function(e) { if (e.target === modalOverlay) closeModal(); });
+document.addEventListener("keydown", function(e) { if (e.key === "Escape" && modalOverlay.style.display === "flex") closeModal(); });
+document.querySelectorAll(".pri-btn").forEach(function(b) { b.addEventListener("click", function() { setPriority(b.dataset.p); }); });
+document.querySelectorAll(".col-pick-btn").forEach(function(b) { b.addEventListener("click", function() { setCol(b.dataset.c); }); });
+mName.addEventListener("input", function() { mName.classList.remove("is-error"); });
+modalForm.addEventListener("submit", submitModal);
+
+// ── Delete ─────────────────────────────────────────────────────────────────────
+function deleteCard(id) {
+  var el = document.querySelector("[data-id=\"" + id + "\"]");
+  function doDelete() {
+    fetch('/api/roadmap?id=' + encodeURIComponent(id), { method: 'DELETE' }).catch(function() {});
+    var idx = cards.findIndex(function(c) { return c.id === id; });
+    if (idx !== -1) cards.splice(idx, 1);
+    render();
+  }
+  if (el) {
+    var anim = el.animate(
+      [{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(0.88)" }],
+      { duration: 180, easing: "ease-in", fill: "forwards" }
+    );
+    anim.onfinish = doDelete;
+  } else { doDelete(); }
+}
+
+// ── Celebrations ──────────────────────────────────────────────────────────────
+function pulseGreen(el) {
+  el.animate([
+    { boxShadow: "0 0 0 0 rgba(52,201,123,0)" },
+    { boxShadow: "0 0 0 0 rgba(52,201,123,0)", offset: 0.05 },
+    { boxShadow: "0 0 22px 7px rgba(52,201,123,0.52)" },
+    { boxShadow: "0 0 0 0 rgba(52,201,123,0)" }
+  ], { duration: 620, easing: "ease-out" });
+}
+function fireConfetti(el) {
+  var rect = el.getBoundingClientRect();
+  var cx = rect.left + rect.width / 2;
+  var cy = rect.top + rect.height * 0.28;
+  var n  = CONFETTI_SPECS.length;
+  for (var i = 0; i < n; i++) {
+    (function(i) {
+      var spec  = CONFETTI_SPECS[i];
+      var angle = (Math.PI * 5 / 18) + (i / (n - 1)) * (Math.PI * 4 / 9) + (Math.random() - 0.5) * 0.22;
+      var dist  = 38 + Math.random() * 28;
+      var tx = Math.cos(angle) * dist;
+      var ty = -Math.sin(angle) * dist;
+      var p  = document.createElement("div");
+      p.style.cssText = [
+        "position:fixed", "left:" + cx + "px", "top:" + cy + "px",
+        "width:" + spec.w, "height:" + spec.h, "background:" + spec.color,
+        "border-radius:" + spec.r, "pointer-events:none", "z-index:2000",
+        "transform:translate(-50%,-50%)"
+      ].join(";");
+      document.body.appendChild(p);
+      var anim = p.animate([
+        { transform: "translate(-50%,-50%) scale(1.2)", opacity: "1" },
+        { transform: "translate(calc(-50% + " + tx + "px),calc(-50% + " + ty + "px)) scale(0.15)", opacity: "0" }
+      ], { duration: 780, easing: "cubic-bezier(0.10,0.82,0.30,1)", fill: "forwards", delay: i * 28 });
+      anim.onfinish = function() { if (p.parentNode) p.parentNode.removeChild(p); };
+    })(i);
+  }
+}
+function celebrateDone(cardId) {
+  var el = document.querySelector("[data-id=\"" + cardId + "\"]");
+  if (el) { pulseGreen(el); fireConfetti(el); }
+}
+
+// ── Ghost ──────────────────────────────────────────────────────────────────────
+function createGhost(sourceEl) {
+  var rect = sourceEl.getBoundingClientRect();
+  var g = sourceEl.cloneNode(true);
+  g.className = "k-card";
+  g.style.cssText = [
+    "position:fixed", "left:" + rect.left + "px", "top:" + rect.top + "px",
+    "width:" + rect.width + "px", "height:" + rect.height + "px", "margin:0",
+    "pointer-events:none", "z-index:1000", "transform:scale(1.03) rotate(2deg)",
+    "box-shadow:0 22px 52px rgba(0,0,0,0.65),0 4px 20px rgba(79,142,247,0.22)",
+    "will-change:transform,left,top", "transition:none"
+  ].join(";");
+  document.body.appendChild(g);
+  return g;
+}
+function moveGhost(cx, cy) {
+  var ds = dragState;
+  var velX = cx - ds.lastX;
+  ds.velX = velX; ds.lastX = cx;
+  var tilt = Math.max(-4, Math.min(4, velX * 0.5));
+  ds.ghostEl.style.left      = (cx - ds.offsetX) + "px";
+  ds.ghostEl.style.top       = (cy - ds.offsetY) + "px";
+  ds.ghostEl.style.transform = "scale(1.03) rotate(" + (2 + tilt) + "deg)";
+}
+
+// ── Placeholder ────────────────────────────────────────────────────────────────
+function makePlaceholder(h) {
+  var el = document.createElement("div");
+  el.className = "k-card k-card--placeholder";
+  el.style.height = h + "px";
+  return el;
+}
+function removePlaceholder() {
+  if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+  placeholder = null;
+}
+
+// ── FLIP ───────────────────────────────────────────────────────────────────────
+function captureRects() {
+  var map = [];
+  COL_ORDER.forEach(function(col) {
+    var b = colBody(col);
+    if (!b) return;
+    b.querySelectorAll(".k-card:not(.k-card--source):not(.k-card--placeholder)").forEach(function(el) {
+      map.push({ el: el, rect: el.getBoundingClientRect() });
+    });
+  });
+  return map;
+}
+function playFlip(snapshot) {
+  requestAnimationFrame(function() {
+    snapshot.forEach(function(item) {
+      if (!document.contains(item.el)) return;
+      var dy = item.rect.top - item.el.getBoundingClientRect().top;
+      if (Math.abs(dy) < 1) return;
+      item.el.animate(
+        [{ transform: "translateY(" + dy + "px)" }, { transform: "translateY(0)" }],
+        { duration: 175, easing: EASE_OUT }
+      );
+    });
+  });
+}
+
+// ── Drop zone ──────────────────────────────────────────────────────────────────
+function getDropTarget(cx, cy) {
+  for (var i = 0; i < COL_ORDER.length; i++) {
+    var col   = COL_ORDER[i];
+    var b     = colBody(col);
+    if (!b) continue;
+    var colEl = document.getElementById("col-" + col);
+    var rect  = (colEl || b).getBoundingClientRect();
+    if (cx < rect.left || cx > rect.right || cy < rect.top - 10 || cy > rect.bottom + 20) continue;
+    var sibs = Array.prototype.slice.call(
+      b.querySelectorAll(".k-card:not(.k-card--source):not(.k-card--placeholder)")
+    );
+    var insertBefore = null;
+    for (var j = 0; j < sibs.length; j++) {
+      var sr = sibs[j].getBoundingClientRect();
+      if (cy < sr.top + sr.height / 2) { insertBefore = sibs[j]; break; }
+    }
+    return { col: col, body: b, insertBefore: insertBefore };
+  }
+  return null;
+}
+function updateDropZone(cx, cy) {
+  var target = getDropTarget(cx, cy);
+  document.querySelectorAll(".col-body").forEach(function(b) { b.classList.remove("drag-over"); });
+  if (!target) return;
+  target.body.classList.add("drag-over");
+  var samePrev = placeholder && placeholder.parentNode === target.body;
+  var sameNext = placeholder && placeholder.nextSibling === (target.insertBefore || null);
+  if (samePrev && sameNext) return;
+  var snap = captureRects();
+  if (!placeholder) placeholder = makePlaceholder(dragState ? dragState.cardHeight : 72);
+  if (target.insertBefore) target.body.insertBefore(placeholder, target.insertBefore);
+  else target.body.appendChild(placeholder);
+  playFlip(snap);
+}
+
+// ── Advance / regress ──────────────────────────────────────────────────────────
+function advanceCard(id) {
+  var idx = cards.findIndex(function(c) { return c.id === id; });
+  if (idx === -1) return;
+  var ci = COL_ORDER.indexOf(cards[idx].col);
+  if (ci < COL_ORDER.length - 1) {
+    var prev = cards[idx].col;
+    cards[idx].col = COL_ORDER[ci + 1];
+    var toDone = (cards[idx].col === "done" && prev !== "done");
+    patchStatus(id, cards[idx].col);
+    render();
+    if (toDone) celebrateDone(id);
+  }
+}
+function regressCard(id) {
+  var idx = cards.findIndex(function(c) { return c.id === id; });
+  if (idx === -1) return;
+  var ci = COL_ORDER.indexOf(cards[idx].col);
+  if (ci > 0) { cards[idx].col = COL_ORDER[ci - 1]; patchStatus(id, cards[idx].col); render(); }
+}
+
+// ── Build card ─────────────────────────────────────────────────────────────────
+function buildCard(card) {
+  var el = document.createElement("div");
+  el.className   = "k-card";
+  el.dataset.id  = card.id;
+  el.innerHTML =
+    '<div class="k-card-actions">' +
+      '<button class="k-act-btn k-edit-btn" title="Edit">&#9998;</button>' +
+      '<button class="k-act-btn k-del-btn"  title="Delete">&#10005;</button>' +
+    '</div>' +
+    '<div class="k-card-name">' + escHtml(card.name) + '</div>' +
+    '<div class="k-card-desc">' + escHtml(card.desc || "") + '</div>' +
+    '<div class="k-card-footer">' +
+      '<span class="priority ' + priorityClass(card.priority) + '">' + priorityLabel(card.priority) + '</span>' +
+      '<span class="drag-hint">drag &nbsp;·&nbsp; click to advance &nbsp;·&nbsp; right-click to go back</span>' +
+    '</div>';
+
+  // Edit
+  el.querySelector(".k-edit-btn").addEventListener("click", function(e) {
+    e.stopPropagation();
+    openModal(card);
+  });
+
+  // Delete — inline confirm overlay
+  el.querySelector(".k-del-btn").addEventListener("click", function(e) {
+    e.stopPropagation();
+    if (el.querySelector(".k-confirm")) return;
+    var overlay = document.createElement("div");
+    overlay.className = "k-confirm";
+    overlay.innerHTML =
+      '<span class="k-confirm-label">Delete this card?</span>' +
+      '<div class="k-confirm-btns">' +
+        '<button class="k-confirm-yes">Delete</button>' +
+        '<button class="k-confirm-no">Cancel</button>' +
+      '</div>';
+    overlay.addEventListener("pointerdown", function(e) { e.stopPropagation(); });
+    overlay.querySelector(".k-confirm-yes").addEventListener("click", function() { deleteCard(card.id); });
+    overlay.querySelector(".k-confirm-no").addEventListener("click", function() {
+      overlay.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: "ease-in", fill: "forwards" })
+        .onfinish = function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); };
+    });
+    overlay.style.opacity = "0";
+    el.appendChild(overlay);
+    overlay.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: "ease-out" });
+    overlay.style.opacity = "";
+  });
+
+  // Drag / click
+  el.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    if (e.target.closest(".k-card-actions, .k-confirm")) return;
+    e.preventDefault();
+    var rect = el.getBoundingClientRect();
+    dragState = {
+      cardId: card.id, cardEl: el,
+      startX: e.clientX, startY: e.clientY,
+      offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
+      lastX: e.clientX, velX: 0,
+      cardHeight: rect.height, isDragging: false, ghostEl: null, done: false
+    };
+    el.setPointerCapture(e.pointerId);
+  });
+
+  el.addEventListener("pointermove", function(e) {
+    if (!dragState || dragState.cardEl !== el || dragState.done) return;
+    var dx = e.clientX - dragState.startX, dy = e.clientY - dragState.startY;
+    if (!dragState.isDragging) {
+      if (Math.sqrt(dx * dx + dy * dy) < THRESHOLD) return;
+      dragState.isDragging = true;
+      dragState.ghostEl    = createGhost(el);
+      el.classList.add("k-card--source");
+      document.body.style.cursor = "grabbing";
+    }
+    moveGhost(e.clientX, e.clientY);
+    updateDropZone(e.clientX, e.clientY);
+  });
+
+  el.addEventListener("pointerup", function(e) {
+    if (!dragState || dragState.cardEl !== el || dragState.done) return;
+    if (!dragState.isDragging) { dragState = null; advanceCard(card.id); return; }
+    dragState.done = true;
+    document.body.style.cursor = "";
+    document.querySelectorAll(".col-body").forEach(function(b) { b.classList.remove("drag-over"); });
+    var ghostEl = dragState.ghostEl, finalVelX = dragState.velX, cardId = dragState.cardId;
+    var enteringDone = false;
+    if (placeholder && placeholder.parentNode) {
+      var dropCol      = placeholder.parentNode.id.replace("body-", "");
+      var nextSib      = placeholder.nextSibling;
+      var insertBeforeId = (nextSib && nextSib.dataset && nextSib.dataset.id) ? nextSib.dataset.id : null;
+      var cardIdx = cards.findIndex(function(c) { return c.id === cardId; });
+      var prevCol = cards[cardIdx].col;
+      cards[cardIdx].col = dropCol;
+      enteringDone = (dropCol === "done" && prevCol !== "done");
+      patchStatus(cardId, dropCol);
+      if (insertBeforeId) {
+        var moved = cards.splice(cardIdx, 1)[0];
+        var newIdx = cards.findIndex(function(c) { return c.id === insertBeforeId; });
+        if (newIdx !== -1) cards.splice(newIdx, 0, moved); else cards.push(moved);
+      } else {
+        var moved2 = cards.splice(cardIdx, 1)[0];
+        cards.push(moved2);
+      }
+      save();
+    }
+    var finalized = false;
+    function finalize() {
+      if (finalized) return; finalized = true;
+      if (ghostEl && ghostEl.parentNode) ghostEl.parentNode.removeChild(ghostEl);
+      el.classList.remove("k-card--source");
+      removePlaceholder();
+      dragState = null;
+      render();
+      if (enteringDone) celebrateDone(cardId);
+    }
+    if (placeholder && placeholder.parentNode) {
+      var pRect = placeholder.getBoundingClientRect();
+      var ddx   = pRect.left - parseFloat(ghostEl.style.left);
+      var ddy   = pRect.top  - parseFloat(ghostEl.style.top);
+      var tilt  = 2 + Math.max(-4, Math.min(4, finalVelX * 0.5));
+      var anim  = ghostEl.animate([
+        { transform: "scale(1.03) rotate(" + tilt + "deg)", boxShadow: "0 22px 52px rgba(0,0,0,0.65),0 4px 20px rgba(79,142,247,0.22)", opacity: "1" },
+        { transform: "translate(" + ddx + "px," + ddy + "px) scale(1) rotate(0deg)", boxShadow: "0 2px 8px rgba(0,0,0,0.35)", opacity: "0.5" }
+      ], { duration: 300, easing: SPRING, fill: "forwards" });
+      anim.onfinish = finalize; anim.oncancel = finalize;
+    } else { finalize(); }
+  });
+
+  el.addEventListener("pointercancel", function() {
+    if (!dragState || dragState.cardEl !== el) return;
+    if (dragState.ghostEl) dragState.ghostEl.remove();
+    el.classList.remove("k-card--source");
+    document.body.style.cursor = "";
+    document.querySelectorAll(".col-body").forEach(function(b) { b.classList.remove("drag-over"); });
+    removePlaceholder();
+    dragState = null;
+  });
+
+  el.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+    if (!dragState || !dragState.isDragging) regressCard(card.id);
+  });
+
+  return el;
+}
+
+// ── Escape HTML ───────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  COL_ORDER.forEach(function(col) {
+    var body      = colBody(col);
+    body.innerHTML = "";
+    var colCards  = cards.filter(function(c) { return c.col === col; });
+    if (colCards.length === 0) {
+      var empty = document.createElement("div");
+      empty.className   = "col-empty";
+      empty.textContent = col === "suggested" ? "Ideas from others will appear here" : "No items yet";
+      body.appendChild(empty);
+    } else {
+      colCards.forEach(function(card) { body.appendChild(buildCard(card)); });
+    }
+    document.getElementById("count-" + col).textContent = colCards.length;
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+load();
+</script>
+</body>
+</html>

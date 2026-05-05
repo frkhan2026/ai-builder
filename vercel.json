@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/ai-builder-MBA-dashboard.html" }
+  ]
+}
