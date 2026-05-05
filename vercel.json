@@ -1,5 +1,11 @@
 {
-  "rewrites": [
-    { "source": "/", "destination": "/ai-builder-MBA-dashboard.html" }
+  "version": 2,
+  "builds": [
+    { "src": "api/roadmap.js", "use": "@vercel/node" },
+    { "src": "*.html", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/roadmap", "dest": "/api/roadmap.js" },
+    { "src": "/", "dest": "/ai-builder-MBA-dashboard.html" }
   ]
 }
