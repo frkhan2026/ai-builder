@@ -323,7 +323,7 @@
         </button>
       </div>
     </div>
-    <div class="meta">Drag to move · Click to advance · Right-click to go back · Synced to Notion · April 2026</div>
+    <div class="meta">Drag to move · Click to advance · Right-click to go back · Synced to Notion · <span id="meta-date"></span></div>
   </div>
 
   <div class="board" id="board">
@@ -345,7 +345,7 @@
     </div>
   </div>
 
-  <div class="footer">AI Builder Automation Portfolio &nbsp;·&nbsp; Faisal Khan &nbsp;·&nbsp; April 2026</div>
+  <div class="footer">AI Builder Automation Portfolio &nbsp;·&nbsp; Faisal Khan &nbsp;·&nbsp; <span id="footer-date"></span></div>
 </div>
 
 <script>
@@ -1122,6 +1122,7 @@ Format both as a clean document I can share with the team.</div>
       <span class="plan-card-title">Competitive Intel Tracker</span>
       <span class="plan-badge">Scoped</span>
       <span class="priority priority-medium" style="margin-left:4px;">Medium</span>
+      <a href="competitive-intel-flow.html" style="margin-left:auto;font-size:0.72rem;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;">View flow →</a>
     </div>
     <p class="plan-what">A living Notion database organized by competitor — covering financials, FDA clearances, clinical trials, commercial activity, funding, pipeline, and conference activity — updated weekly by a Claude agent scanning six interventional trade publications (Endovascular Today, TCTMD, Cardiovascular Business, Cath Lab Digest, Interventional News, MedTech Dive). High-significance items trigger a Slack DM to Faisal. Any teammate can run an on-demand briefing before a board meeting or KOL conversation. Conference notes added manually. Competitors: Penumbra/BSX, Inari/Stryker, Imperative Vascular, Inquis, AngioDynamics, Endovascular Engineering, Jupiter, Magneto, SonoVascular, Flow Medical, SurModics, Medtronic Liberant.</p>
 
@@ -1358,6 +1359,7 @@ Here are my raw notes:
       <span class="plan-card-title">Sales CRM Automation</span>
       <span class="plan-badge">Scoped</span>
       <span class="priority priority-high" style="margin-left:4px;">High</span>
+      <a href="CRM Automation/crm-automation-flow.html" style="margin-left:auto;font-size:0.72rem;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;">View flow →</a>
     </div>
     <p class="plan-what">Fully automated post-meeting pipeline — no manual data entry. Zoom AI email arrives → Power Automate triggers Claude → Claude in Chrome saves Outlook draft to site contact → SharePoint MCP writes CRM row update directly (appends meeting notes, updates next steps/owner/due date/engagement score) → CRM save triggers dashboard auto-refresh on SharePoint. Colleen's only actions: review and send the Outlook draft; copy action items to Slack. No copy-paste, no spreadsheet opens, no script runs. 35 sites · IN / Above / Out funnel. Prerequisite: Colleen enables Zoom cloud recording.</p>
 
@@ -1590,5 +1592,13 @@ Verify: correct CRM row updated, Outlook draft saved, dashboard refreshed.</div>
     </div>
   </div>
 
+<script>
+  (function() {
+    var d = new Date();
+    var label = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('meta-date').textContent = label;
+    document.getElementById('footer-date').textContent = label;
+  })();
+</script>
 </body>
 </html>
