@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales CRM Automation — Workflow</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3352;
+    --accent: #4f8ef7;
+    --accent2: #7c5cbf;
+    --green: #34c97b;
+    --yellow: #f5c842;
+    --red: #e85c5c;
+    --orange: #f0874a;
+    --text: #e8eaf0;
+    --muted: #8a90a8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 36px 28px 100px;
+  }
+
+  .bg-blob { position: fixed; border-radius: 50%; pointer-events: none; z-index: -1; }
+  .bb0 { width:62vw; height:62vw; background:rgba(79,142,247,0.08); filter:blur(80px); top:-8%; left:-12%; animation:bA 38s ease-in-out infinite alternate; }
+  .bb1 { width:52vw; height:52vw; background:rgba(52,201,123,0.07); filter:blur(80px); bottom:-8%; right:-12%; animation:bB 47s ease-in-out infinite alternate; }
+  .bb2 { width:44vw; height:44vw; background:rgba(124,92,191,0.07); filter:blur(90px); top:30%; right:10%; animation:bC 55s ease-in-out infinite alternate; }
+  @keyframes bA { from { transform:translate(0,0) scale(1); } to { transform:translate(8vw,6vh) scale(1.08); } }
+  @keyframes bB { from { transform:translate(0,0) scale(1); } to { transform:translate(-8vw,-6vh) scale(0.92); } }
+  @keyframes bC { from { transform:translate(0,0) scale(1); } to { transform:translate(-6vw,8vh) scale(1.05); } }
+
+  /* ── Page ── */
+  .page { max-width: 920px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 22px; }
+  .header-row { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .header h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
+  .header-sub { color: var(--muted); font-size: 0.8rem; margin-top: 5px; }
+  .back-link { color: var(--accent); text-decoration: none; font-size: 0.78rem; font-weight: 600; white-space: nowrap; margin-top: 4px; }
+  .back-link:hover { text-decoration: underline; }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    display: flex; gap: 0; border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; margin-bottom: 28px;
+    background: var(--surface);
+  }
+  .stat-cell {
+    flex: 1; padding: 11px 16px; border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-num { font-size: 1.1rem; font-weight: 800; }
+  .stat-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+  /* ── Legend ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+  .leg { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--muted); }
+  .leg-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── Flow ── */
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+
+  /* ── Step box ── */
+  .step {
+    width: 100%;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .step-hd {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px; border-bottom: 1px solid var(--border);
+  }
+  .step-badge {
+    font-size: 0.58rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.09em; padding: 2px 7px; border-radius: 4px; white-space: nowrap;
+  }
+  .step-title { font-size: 0.88rem; font-weight: 700; }
+  .step-tool { margin-left: auto; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+  .step-bd { padding: 10px 14px; }
+
+  /* type themes */
+  .t-trigger { border-color: rgba(79,142,247,0.35); }
+  .t-trigger .step-hd { background: rgba(79,142,247,0.07); }
+  .t-trigger .step-badge { background: rgba(79,142,247,0.14); color: var(--accent); }
+
+  .t-infra { border-color: rgba(245,200,66,0.3); }
+  .t-infra .step-hd { background: rgba(245,200,66,0.06); }
+  .t-infra .step-badge { background: rgba(245,200,66,0.12); color: var(--yellow); }
+
+  .t-process { border-color: rgba(124,92,191,0.35); }
+  .t-process .step-hd { background: rgba(124,92,191,0.07); }
+  .t-process .step-badge { background: rgba(124,92,191,0.14); color: var(--accent2); }
+
+  .t-gate { border-color: rgba(240,135,74,0.45); }
+  .t-gate .step-hd { background: rgba(240,135,74,0.08); }
+  .t-gate .step-badge { background: rgba(240,135,74,0.15); color: var(--orange); }
+
+  .t-output { border-color: rgba(52,201,123,0.3); }
+  .t-output .step-hd { background: rgba(52,201,123,0.07); }
+  .t-output .step-badge { background: rgba(52,201,123,0.13); color: var(--green); }
+
+  .t-skip { border-color: rgba(232,92,92,0.3); }
+  .t-skip .step-hd { background: rgba(232,92,92,0.07); }
+  .t-skip .step-badge { background: rgba(232,92,92,0.13); color: var(--red); }
+
+  .t-manual { border-color: rgba(240,135,74,0.3); }
+  .t-manual .step-hd { background: rgba(240,135,74,0.06); }
+  .t-manual .step-badge { background: rgba(240,135,74,0.13); color: var(--orange); }
+
+  .t-done { border-color: rgba(52,201,123,0.25); background: rgba(52,201,123,0.04); }
+  .t-done .step-hd { background: rgba(52,201,123,0.06); }
+  .t-done .step-badge { background: rgba(52,201,123,0.12); color: var(--green); }
+
+  /* ── Detail list ── */
+  .dl { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .dl li { font-size: 0.78rem; color: var(--muted); padding-left: 14px; position: relative; }
+  .dl li::before { content: '→'; position: absolute; left: 0; color: #3a4060; font-size: 0.7rem; line-height: 1.8; }
+  .dl li strong { color: var(--text); }
+
+  /* ── Failure point callout ── */
+  .fp {
+    display: flex; gap: 8px; align-items: flex-start;
+    background: rgba(232,92,92,0.05);
+    border: 1px solid rgba(232,92,92,0.2);
+    border-radius: 6px; padding: 7px 10px; margin-top: 9px;
+  }
+  .fp.fp-orange { background: rgba(240,135,74,0.05); border-color: rgba(240,135,74,0.22); }
+  .fp.fp-yellow { background: rgba(245,200,66,0.04); border-color: rgba(245,200,66,0.2); }
+  .fp-num {
+    font-size: 0.58rem; font-weight: 800; color: var(--red);
+    background: rgba(232,92,92,0.14); border-radius: 3px;
+    padding: 2px 5px; white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .fp.fp-orange .fp-num { color: var(--orange); background: rgba(240,135,74,0.14); }
+  .fp.fp-yellow .fp-num { color: var(--yellow); background: rgba(245,200,66,0.12); }
+  .fp-title { font-size: 0.73rem; font-weight: 700; }
+  .fp-fix { font-size: 0.68rem; color: var(--muted); line-height: 1.45; margin-top: 2px; }
+  .fp-fix strong { color: var(--orange); }
+
+  /* ── Arrow connector ── */
+  .arr {
+    display: flex; flex-direction: column; align-items: center; padding: 2px 0;
+  }
+  .arr-line { width: 2px; height: 22px; background: var(--border); }
+  .arr-head { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid var(--border); margin-top: -1px; }
+  .arr-label { font-size: 0.63rem; color: var(--muted); margin-top: 3px; font-style: italic; }
+
+  /* ── Branch T-bar ── */
+  .tbar { width: 100%; position: relative; height: 30px; }
+  .tbar-h { position: absolute; top: 0; background: var(--border); height: 2px; }
+  .tbar-v { position: absolute; top: 0; background: var(--border); width: 2px; }
+  .tbar-arrow {
+    position: absolute; bottom: 0;
+    width: 0; height: 0;
+    border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-top: 8px solid var(--border);
+    transform: translateX(-50%);
+  }
+  .branch-lbl {
+    font-size: 0.67rem; font-weight: 700; white-space: nowrap;
+    text-align: center; padding: 3px 0;
+  }
+
+  /* ── 3-col grids ── */
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; width: 100%; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+
+  /* ── Section divider label ── */
+  .sec-lbl {
+    font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted); align-self: flex-start; margin-bottom: 4px; margin-top: 4px;
+  }
+
+  /* ── Merge note ── */
+  .merge-note {
+    font-size: 0.68rem; color: var(--muted);
+    background: var(--surface2); border: 1px dashed var(--border);
+    border-radius: 6px; padding: 4px 14px; white-space: nowrap;
+  }
+
+  /* ── Review banner ── */
+  .review-banner {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(79,142,247,0.07), rgba(52,201,123,0.07));
+    border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 18px;
+  }
+  .review-banner h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
+  .review-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .ri-title { font-size: 0.75rem; font-weight: 700; color: var(--accent); margin-bottom: 3px; }
+  .ri-text { font-size: 0.72rem; color: var(--muted); line-height: 1.45; }
+
+  /* ── Time saved bar ── */
+  .time-bar {
+    width: 100%;
+    display: flex; flex-wrap: wrap; gap: 0;
+    background: rgba(52,201,123,0.05);
+    border: 1px solid rgba(52,201,123,0.22);
+    border-radius: 10px; overflow: hidden;
+  }
+  .time-cell {
+    flex: 1; padding: 12px 18px; border-right: 1px solid rgba(52,201,123,0.15);
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .time-cell:last-child { border-right: none; }
+  .time-num { font-size: 1.15rem; font-weight: 800; color: var(--green); }
+  .time-lbl { font-size: 0.67rem; color: var(--muted); }
+
+  /* ── CRM fields grid ── */
+  .crm-fields {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; margin-top: 6px;
+  }
+  .crm-field { font-size: 0.73rem; color: var(--muted); display: flex; align-items: baseline; gap: 6px; }
+  .crm-field-name { color: var(--text); font-weight: 600; white-space: nowrap; }
+  .crm-field-how { color: var(--muted); font-size: 0.68rem; }
+
+  /* right-side connector from right branch only */
+  .right-merge { align-self: flex-end; width: 33.33%; display: flex; flex-direction: column; align-items: center; }
+
+  /* ── Tags ── */
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .tag { font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); }
+
+  /* spacing utility */
+  .mt6 { margin-top: 6px; }
+  .mt8 { margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="bg-blob bb0"></div>
+<div class="bg-blob bb1"></div>
+<div class="bg-blob bb2"></div>
+
+<div class="page">
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <div class="header-row">
+      <div>
+        <h1>Sales CRM Automation — Workflow</h1>
+        <div class="header-sub">End-to-end flow · Sub-build 2 · NavIQ 35-site deployment pipeline · Status: To Build</div>
+      </div>
+      <a class="back-link" href="ai-builder-dashboard.html">← Back to Roadmap</a>
+    </div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="stats-bar">
+    <div class="stat-cell">
+      <div class="stat-num" style="color:var(--accent)">~13 hrs</div>
+      <div class="stat-label">Total build time</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" style="color:var(--green)">35–55 min</div>
+      <div class="stat-label">Saved per meeting</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" style="color:var(--green)">~125–200 hrs</div>
+      <div class="stat-label">Saved per year</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" style="color:var(--yellow)">35 sites</div>
+      <div class="stat-label">Pipeline under management</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" style="color:var(--accent2)">3 sub-builds</div>
+      <div class="stat-label">CRM restructure · Automation · Dashboard</div>
+    </div>
+  </div>
+
+  <!-- ── Legend ── -->
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--accent)"></div>Trigger / Input</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--accent2)"></div>Processing</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--orange)"></div>Gate / Decision</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Output</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--yellow)"></div>Infrastructure</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--red)"></div>Skip / Error path</div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       FLOW DIAGRAM
+       ════════════════════════════════════════ -->
+  <div class="flow">
+
+    <!-- ① TRIGGER ─────────────────────────────────────── -->
+    <div class="step t-trigger">
+      <div class="step-hd">
+        <span class="step-badge">① Trigger</span>
+        <span class="step-title">Zoom meeting concludes with a site contact</span>
+        <span class="step-tool">Zoom Native AI Companion</span>
+      </div>
+      <div class="step-bd">
+        <ul class="dl">
+          <li>Zoom Native AI Companion auto-generates transcript + structured summary</li>
+          <li>Sends email to <strong>Colleen's Outlook inbox</strong></li>
+          <li>Subject: <strong>"Meeting Summary: [topic]"</strong> · From: <strong>zoom@zoom.us</strong></li>
+          <li>Email structure: <strong>Quick recap</strong> / <strong>Next steps (per-person)</strong> / <strong>Summary</strong></li>
+          <li>Optional: Colleen <strong>photographs handwritten notes</strong> and attaches to the same email thread</li>
+        </ul>
+        <div class="tags">
+          <span class="tag">Pre-req: Colleen enables Zoom AI Companion for site calls</span>
+          <span class="tag">No config change needed for internal meetings</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+    <!-- ② POWER AUTOMATE TRIGGER ──────────────────────── -->
+    <div class="step t-infra">
+      <div class="step-hd">
+        <span class="step-badge">② Automation</span>
+        <span class="step-title">Power Automate detects email in Colleen's inbox</span>
+        <span class="step-tool">Power Automate</span>
+      </div>
+      <div class="step-bd">
+        <ul class="dl">
+          <li>Rule watches Colleen's inbox: subject contains <strong>"Meeting Summary:"</strong> AND sender = <strong>zoom@zoom.us</strong></li>
+          <li>Fires the Claude processing pipeline automatically — no action required from Colleen</li>
+        </ul>
+        <div class="fp">
+          <span class="fp-num">FP 9</span>
+          <div>
+            <div class="fp-title">Duplicate trigger — same email processed twice</div>
+            <div class="fp-fix"><strong>Fix:</strong> Extract Zoom meeting ID from email header. If same ID processed in the last 24 hrs, skip and log. Do not re-run pipeline.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+    <!-- ③ PARSE ───────────────────────────────────────── -->
+    <div class="step t-process">
+      <div class="step-hd">
+        <span class="step-badge">③ Process</span>
+        <span class="step-title">Parse email + merge handwritten notes</span>
+        <span class="step-tool">Claude · M365 Outlook MCP</span>
+      </div>
+      <div class="step-bd">
+        <ul class="dl">
+          <li>Read email body; extract sections: <strong>Quick recap</strong>, <strong>Next steps</strong>, <strong>Summary</strong></li>
+          <li>If photo attachment detected → run <strong>Claude vision</strong> on handwritten notes; merge content with Zoom summary</li>
+          <li>Build unified data object: site name candidates, next steps per-person, key discussion points</li>
+        </ul>
+        <div class="fp">
+          <span class="fp-num">FP 6</span>
+          <div>
+            <div class="fp-title">Zoom email format changes — section headers shift, parsing breaks silently</div>
+            <div class="fp-fix"><strong>Fix:</strong> Detect section headers case-insensitively ("recap", "next steps", "summary"). If none found, abort and forward raw email to Colleen with a processing-failed note.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+    <!-- ④ A+C GATE ─────────────────────────────────────── -->
+    <div class="step t-gate">
+      <div class="step-hd">
+        <span class="step-badge">④ Gate ◆</span>
+        <span class="step-title">A+C Filter — Is this a site meeting?</span>
+        <span class="step-tool">Claude · CRM_v2.xlsx</span>
+      </div>
+      <div class="step-bd">
+        <ul class="dl">
+          <li><strong>A (behavioral gate):</strong> Colleen enables Zoom AI Companion only for site meetings — all other meetings produce no Zoom email. First line of defense.</li>
+          <li><strong>C (CRM match):</strong> Extract all site / facility names from Quick recap + Summary. Fuzzy-match against <strong>Facility Name</strong> column in CRM_v2.xlsx. Automatic backstop.</li>
+        </ul>
+        <div class="mt8" style="font-size:0.72rem; color:var(--muted);">Three possible outcomes → see branches below.</div>
+      </div>
+    </div>
+
+    <!-- T-bar splitting into 3 branches -->
+    <div style="width:100%; position:relative; height:28px; margin-bottom:0;">
+      <!-- horizontal bar: left-edge of left col to right-edge of right col (approx col centers at 16.67%, 50%, 83.33%) -->
+      <div style="position:absolute; top:0; left:16%; right:16%; height:2px; background:var(--border);"></div>
+      <!-- left drop -->
+      <div style="position:absolute; top:0; left:16%; width:2px; height:28px; background:var(--border);"></div>
+      <!-- center drop -->
+      <div style="position:absolute; top:0; left:calc(50% - 1px); width:2px; height:28px; background:var(--border);"></div>
+      <!-- right drop -->
+      <div style="position:absolute; top:0; right:16%; width:2px; height:28px; background:var(--border);"></div>
+    </div>
+
+    <!-- Branch labels -->
+    <div class="grid3" style="margin-bottom:4px; padding:0;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--border);"></div>
+        <div class="branch-lbl" style="color:var(--red);">No confident match</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--border);"></div>
+        <div class="branch-lbl" style="color:var(--orange);">2+ sites detected</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--border);"></div>
+        <div class="branch-lbl" style="color:var(--green);">Confident single match</div>
+      </div>
+    </div>
+
+    <!-- ── Branch cards ── -->
+    <div class="grid3">
+
+      <!-- Branch A: Skip -->
+      <div class="step t-skip">
+        <div class="step-hd">
+          <span class="step-badge">Skip · Stop</span>
+          <span class="step-title">Not a site meeting</span>
+        </div>
+        <div class="step-bd">
+          <ul class="dl">
+            <li>No CRM facility name found with confidence</li>
+            <li>Log: <strong>"Skipped: [subject] — [date]"</strong> to <strong>skipped-meetings.txt</strong></li>
+            <li>Do <strong>not</strong> alert Colleen — silent skip</li>
+            <li>Pipeline stops here</li>
+          </ul>
+          <div class="fp">
+            <span class="fp-num">FP 10</span>
+            <div>
+              <div class="fp-title">Non-site meeting slips past behavioral gate (A)</div>
+              <div class="fp-fix"><strong>Fix:</strong> CRM match (C) is automatic backstop — low confidence = silent skip. High confidence required to proceed. No false positives downstream.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Branch B: Manual -->
+      <div class="step t-manual">
+        <div class="step-hd">
+          <span class="step-badge">Manual · Stop</span>
+          <span class="step-title">Multi-site meeting</span>
+        </div>
+        <div class="step-bd">
+          <ul class="dl">
+            <li>2+ site names detected in email summary</li>
+            <li>Output all extracted field values to a <strong>text file</strong>, one block per site</li>
+            <li>Flag for <strong>manual CRM entry</strong> by Colleen</li>
+            <li>Pipeline stops here — no automated write</li>
+          </ul>
+          <div class="fp fp-orange">
+            <span class="fp-num fp-num">FP 8</span>
+            <div>
+              <div class="fp-title">Claude writes to one site, silently ignores the other</div>
+              <div class="fp-fix"><strong>Fix:</strong> If 2+ sites detected, output prepared field values for all sites to text file. Do not attempt any automated CRM write for multi-site meetings.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Branch C: Proceed -->
+      <div class="step t-output">
+        <div class="step-hd">
+          <span class="step-badge">Proceed ↓</span>
+          <span class="step-title">Confident single match — continue</span>
+        </div>
+        <div class="step-bd">
+          <ul class="dl">
+            <li>One site matched with <strong>high confidence</strong></li>
+            <li>Log: <strong>matched row name + top 2 runner-up candidates</strong> to output file — Colleen can catch a bad match before Monday review</li>
+            <li>Proceed to 3 parallel outputs below</li>
+          </ul>
+          <div class="fp">
+            <span class="fp-num">FP 1</span>
+            <div>
+              <div class="fp-title">Wrong CRM row matched — writes to wrong site's data</div>
+              <div class="fp-fix"><strong>Fix:</strong> Log "Matched: Mount Sinai (confidence: high / runner-up: Montefiore)" every run. Colleen sees the match result before the Monday team review.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /grid3 branches -->
+
+    <!-- Right-branch continue arrow (only confident match proceeds) -->
+    <div style="width:33.33%; align-self:flex-end; display:flex; flex-direction:column; align-items:center; margin-bottom:0;">
+      <div style="width:2px; height:20px; background:var(--border);"></div>
+      <div style="font-size:0.62rem; color:var(--green); font-weight:600; margin-bottom:2px;">Confident match only</div>
+      <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--border);"></div>
+    </div>
+
+    <!-- Re-center the flow for the three parallel outputs -->
+    <!-- We draw a line from right-third to center -->
+    <div style="width:100%; position:relative; height:20px; margin-bottom:0;">
+      <!-- horizontal bar from 50% to 83.33% (right third center) -->
+      <div style="position:absolute; top:0; left:50%; right:16%; height:2px; background:var(--border);"></div>
+      <!-- drop from center -->
+      <div style="position:absolute; top:0; left:calc(50% - 1px); width:2px; height:20px; background:var(--border);"></div>
+    </div>
+
+    <!-- Section label -->
+    <div class="sec-lbl">⑤ &nbsp;Three parallel outputs — all fire simultaneously</div>
+
+    <!-- ── THREE PARALLEL OUTPUTS ────────────────────── -->
+    <div class="grid3">
+
+      <!-- OUTPUT A: Outlook Draft -->
+      <div class="step t-output">
+        <div class="step-hd">
+          <span class="step-badge">Output A</span>
+          <span class="step-title">Outlook Draft</span>
+          <span class="step-tool">Claude in Chrome</span>
+        </div>
+        <div class="step-bd">
+          <ul class="dl">
+            <li>Open <strong>Outlook Web</strong> (outlook.office.com/mail) via Claude in Chrome automation</li>
+            <li>Compose new email</li>
+            <li><strong>To:</strong> site physician contact — extracted from Next steps section, fallback to CRM_v2.xlsx Physician Contact field</li>
+            <li><strong>Subject:</strong> "Follow-up: [meeting topic / site name]"</li>
+            <li><strong>Body:</strong> professional tone, 150 words max — summarize meeting, confirm next steps</li>
+            <li><strong>Save as draft.</strong> Do not send.</li>
+          </ul>
+          <div class="fp">
+            <span class="fp-num">FP 5</span>
+            <div>
+              <div class="fp-title">Wrong or blank recipient — draft reaches wrong person</div>
+              <div class="fp-fix"><strong>Fix:</strong> Never guess an email address. If no contact found with confidence, set To field to <strong>[CONTACT NEEDED]</strong>. Colleen fills in before sending.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OUTPUT B: Action Items -->
+      <div class="step t-output">
+        <div class="step-hd">
+          <span class="step-badge">Output B</span>
+          <span class="step-title">Action Items — Slack-ready</span>
+          <span class="step-tool">Claude · Text file</span>
+        </div>
+        <div class="step-bd">
+          <ul class="dl">
+            <li>Source: <strong>Next steps</strong> section from Zoom email (already per-person)</li>
+            <li>Generate per-person blocks for: <strong>Colleen, Kavi, Faisal, Craig</strong></li>
+            <li>Format: <code style="font-size:0.7rem; color:var(--accent2);">[action] — [due date or "this week"]</code></li>
+            <li>Write to <strong>action-items.txt</strong> formatted for Slack copy-paste</li>
+            <li>Colleen pastes into Slack (V2: auto-post via Slack API)</li>
+          </ul>
+          <div class="tags">
+            <span class="tag">V2: direct Slack DM per person</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- OUTPUT C: CRM Write -->
+      <div class="step t-output">
+        <div class="step-hd">
+          <span class="step-badge">Output C</span>
+          <span class="step-title">Direct CRM Write</span>
+          <span class="step-tool">SharePoint MCP</span>
+        </div>
+        <div class="step-bd">
+          <ul class="dl">
+            <li><strong>Step 1:</strong> Download <strong>CRM_v2.xlsx</strong> from SharePoint</li>
+            <li><strong>Step 2:</strong> Locate matched site row</li>
+            <li><strong>Step 3:</strong> Update fields in memory (all-or-nothing — never partial):</li>
+          </ul>
+          <div class="crm-fields">
+            <div class="crm-field"><span class="crm-field-name">Meeting Notes</span><span class="crm-field-how">prepend [date]: [summary]</span></div>
+            <div class="crm-field"><span class="crm-field-name">Next Steps</span><span class="crm-field-how">replace with Zoom output</span></div>
+            <div class="crm-field"><span class="crm-field-name">Next Step Owner</span><span class="crm-field-how">update</span></div>
+            <div class="crm-field"><span class="crm-field-name">Next Step Due Date</span><span class="crm-field-how">extract or +7 days</span></div>
+            <div class="crm-field"><span class="crm-field-name">Last Contact Date</span><span class="crm-field-how">today's date</span></div>
+            <div class="crm-field"><span class="crm-field-name">Engagement Score</span><span class="crm-field-how">update only if evident</span></div>
+            <div class="crm-field"><span class="crm-field-name">Milestones</span><span class="crm-field-how">update only if mentioned</span></div>
+          </div>
+          <ul class="dl mt6">
+            <li><strong>Step 4:</strong> Upload CRM_v2.xlsx once to SharePoint — triggers Power Automate</li>
+          </ul>
+          <div class="fp">
+            <span class="fp-num">FP 2</span>
+            <div>
+              <div class="fp-title">Meeting Notes overwritten instead of prepended — data loss</div>
+              <div class="fp-fix"><strong>Fix:</strong> Append-only logic. After write, verify old content still exists. If missing, abort upload and send intended update as text file to Colleen.</div>
+            </div>
+          </div>
+          <div class="fp">
+            <span class="fp-num">FP 3</span>
+            <div>
+              <div class="fp-title">Partial CRM write — file left in inconsistent state</div>
+              <div class="fp-fix"><strong>Fix:</strong> All fields modified in memory first → single upload. Any error before upload = discard entirely. Never write partial changes to SharePoint.</div>
+            </div>
+          </div>
+          <div class="fp">
+            <span class="fp-num">FP 7</span>
+            <div>
+              <div class="fp-title">SharePoint file locked (concurrent edit) — write fails</div>
+              <div class="fp-fix"><strong>Fix:</strong> Check for file lock before write. Retry ×2 at 2-min intervals. If still locked on third attempt, write all outputs to text file and alert Colleen.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /grid3 parallel outputs -->
+
+    <!-- Post-outputs: Slack confirmation + Power Automate trigger -->
+    <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+    <!-- ⑥ CONFIRMATION + PA TRIGGER ───────────────────── -->
+    <div class="step t-infra">
+      <div class="step-hd">
+        <span class="step-badge">⑥ Confirm</span>
+        <span class="step-title">Slack confirmation DM to Colleen + Power Automate dashboard trigger</span>
+        <span class="step-tool">Slack · Power Automate</span>
+      </div>
+      <div class="step-bd">
+        <ul class="dl">
+          <li>Slack DM fires to Colleen: <strong>"Meeting processed ✓ — draft saved, CRM updated, action items ready"</strong> — within 10 minutes of email arrival</li>
+          <li>CRM_v2.xlsx save on SharePoint triggers <strong>Power Automate rule #2</strong>: runs dashboard refresh script</li>
+        </ul>
+        <div class="fp">
+          <span class="fp-num">FP 4</span>
+          <div>
+            <div class="fp-title">Claude pipeline fires but fails silently — no outputs, Colleen unaware</div>
+            <div class="fp-fix"><strong>Fix:</strong> Every Zoom AI email must produce a Slack DM within 10 min. No DM = something failed. This single rule surfaces all silent failures without requiring Colleen to check anything manually.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+    <!-- ⑦ DASHBOARD REFRESH ─────────────────────────── -->
+    <div class="step t-infra">
+      <div class="step-hd">
+        <span class="step-badge">⑦ Dashboard</span>
+        <span class="step-title">Auto-refresh SharePoint dashboard</span>
+        <span class="step-tool">Power Automate · Python · SharePoint</span>
+      </div>
+      <div class="step-bd">
+        <div class="grid2" style="gap:10px;">
+          <div>
+            <div style="font-size:0.7rem; font-weight:700; color:var(--accent); margin-bottom:4px;">Ops View</div>
+            <ul class="dl">
+              <li>Per-site cards with engagement score</li>
+              <li>Cold-risk flagging (no contact > 14 days)</li>
+              <li>Next steps + owner at-a-glance</li>
+              <li>Milestone progress per site</li>
+            </ul>
+          </div>
+          <div>
+            <div style="font-size:0.7rem; font-weight:700; color:var(--accent2); margin-bottom:4px;">Board View</div>
+            <ul class="dl">
+              <li>Pipeline counts: IN / Above / Out</li>
+              <li>Milestone completion rates</li>
+              <li>Sites by engagement level</li>
+              <li>Deployment trajectory toward 2026 goal</li>
+            </ul>
+          </div>
+        </div>
+        <ul class="dl mt6">
+          <li>Python script reads CRM_v2.xlsx → generates HTML → uploads to SharePoint</li>
+          <li>Accessible to all leadership team via SharePoint link</li>
+          <li>Auto-refreshes within <strong>5 minutes</strong> of any CRM save — no manual run</li>
+        </ul>
+        <div class="fp fp-yellow">
+          <span class="fp-num">FP 11</span>
+          <div>
+            <div class="fp-title">Dashboard script crashes on unexpected CRM data — stale page, no alert</div>
+            <div class="fp-fix"><strong>Fix:</strong> Wrap script in try/except. On crash: keep previous dashboard version live, send Slack alert to Faisal with error details. Never serve a blank or broken page.</div>
+          </div>
+        </div>
+        <div class="fp fp-yellow">
+          <span class="fp-num">FP 12</span>
+          <div>
+            <div class="fp-title">Dashboard SharePoint URL changes — all bookmarks break silently</div>
+            <div class="fp-fix"><strong>Fix:</strong> Agree on stable SharePoint folder path before deployment. Document URL in team wiki. Never move or rename the file without updating all links.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arr"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+    <!-- ⑧ COLLEEN'S REVIEW ──────────────────────────── -->
+    <div class="review-banner">
+      <h3>⑧ Colleen's Monday Review — What she sees</h3>
+      <div class="review-grid">
+        <div>
+          <div class="ri-title">📧 Outlook Drafts</div>
+          <div class="ri-text">Follow-up email pre-written, addressed to site contact. She reviews tone, fills in any flagged fields (e.g., <code style="font-size:0.7rem;color:var(--accent2);">[CONTACT NEEDED]</code>), and sends with one click.</div>
+        </div>
+        <div>
+          <div class="ri-title">💬 Slack Action Items</div>
+          <div class="ri-text">Per-person action blocks ready to paste into Slack. One copy-paste per meeting. V2 will auto-post directly to each person as a DM.</div>
+        </div>
+        <div>
+          <div class="ri-title">📊 SharePoint Dashboard</div>
+          <div class="ri-text">CRM already updated. Dashboard already refreshed. She opens the link and reviews pipeline health — no spreadsheet editing required.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arr" style="padding-bottom:0;"><div class="arr-line"></div><div class="arr-head"></div></div>
+
+    <!-- ⑨ TIME SAVED ───────────────────────────────── -->
+    <div class="time-bar">
+      <div class="time-cell">
+        <div class="time-num">35–55 min</div>
+        <div class="time-lbl">Saved per meeting</div>
+      </div>
+      <div class="time-cell">
+        <div class="time-num">4–6 meetings</div>
+        <div class="time-lbl">Typical week</div>
+      </div>
+      <div class="time-cell">
+        <div class="time-num">2.5–4 hrs/wk</div>
+        <div class="time-lbl">Weekly time recovered</div>
+      </div>
+      <div class="time-cell">
+        <div class="time-num">125–200 hrs</div>
+        <div class="time-lbl">Saved per year</div>
+      </div>
+      <div class="time-cell">
+        <div class="time-num">~13 hrs</div>
+        <div class="time-lbl">One-time build cost</div>
+      </div>
+    </div>
+
+  </div><!-- /flow -->
+
+  <!-- ── Build plan reference ── -->
+  <div style="margin-top:40px; padding:16px 18px; background:var(--surface); border:1px solid var(--border); border-radius:10px;">
+    <div style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px;">Build plan — 3 sub-builds · ordered by dependency</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+        <div>
+          <div style="font-size:0.82rem;font-weight:700;">CRM restructure → <code style="font-size:0.78rem;color:var(--accent2);">CRM_v2.xlsx</code></div>
+          <div style="font-size:0.73rem;color:var(--muted);">~2 hrs · Consolidate 23 columns → 15, add Engagement Score / Milestones / Due Date / Last Contact Date, migrate all existing data. Must complete before Sub-builds 2 &amp; 3.</div>
+        </div>
+        <span style="white-space:nowrap;font-size:0.7rem;color:var(--muted);margin-left:auto;">~2 hrs</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--accent2);font-size:0.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+        <div>
+          <div style="font-size:0.82rem;font-weight:700;">Post-meeting automation pipeline <span style="font-size:0.72rem;color:var(--muted);font-weight:400;">— this diagram</span></div>
+          <div style="font-size:0.73rem;color:var(--muted);">~6 hrs · Power Automate trigger → Claude pipeline → A+C gate → Outlook draft + action items + CRM write → Slack confirmation.</div>
+        </div>
+        <span style="white-space:nowrap;font-size:0.7rem;color:var(--muted);margin-left:auto;">~6 hrs</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(245,200,66,0.12);color:var(--yellow);font-size:0.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+        <div>
+          <div style="font-size:0.82rem;font-weight:700;">Auto-refreshing dual-view SharePoint dashboard</div>
+          <div style="font-size:0.73rem;color:var(--muted);">~5 hrs · Python reads CRM_v2.xlsx → generates HTML (ops view + board view) → uploads to SharePoint. Power Automate triggers on every CRM save. ≤5 min refresh.</div>
+        </div>
+        <span style="white-space:nowrap;font-size:0.7rem;color:var(--muted);margin-left:auto;">~5 hrs</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top:28px; display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:0.72rem; flex-wrap:wrap; gap:8px;">
+    <span>Sales CRM Automation · Akura NavIQ · Status: To Build · Priority: High</span>
+    <span>12 failure mitigations · 3 skip paths · 0 manual copy-paste in v1</span>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>

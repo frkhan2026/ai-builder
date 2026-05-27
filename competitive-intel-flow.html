@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competitive Intel Tracker — Build Flow</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3352;
+    --accent: #4f8ef7;
+    --green: #34c97b;
+    --yellow: #f5c842;
+    --red: #e85c5c;
+    --orange: #f0874a;
+    --purple: #7c5cbf;
+    --text: #e8eaf0;
+    --muted: #8a90a8;
+    --dim: #454b65;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px; line-height: 1.5; min-height: 100vh;
+    padding: 40px 32px 80px;
+  }
+
+  /* ── Background blobs ── */
+  .bg-blob { position: fixed; border-radius: 50%; pointer-events: none; z-index: -1; }
+  .bg-blob-0 { width:60vw; height:60vw; background:rgba(79,142,247,0.08); filter:blur(80px); top:-10%; left:-10%; }
+  .bg-blob-1 { width:50vw; height:50vw; background:rgba(52,201,123,0.07); filter:blur(90px); bottom:-10%; right:-10%; }
+  .bg-blob-2 { width:40vw; height:40vw; background:rgba(124,92,191,0.07); filter:blur(80px); top:30%; right:15%; }
+
+  /* ── Header ── */
+  .page-header { margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 22px; }
+  .page-header h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
+  .page-header p { color: var(--muted); font-size: 0.85rem; }
+  .badge-row { display: flex; gap: 10px; margin-top: 14px; align-items: center; flex-wrap: wrap; }
+  .badge {
+    font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em;
+    padding: 3px 9px; border-radius: 4px;
+  }
+  .badge-blue   { background: rgba(79,142,247,0.14); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); }
+  .badge-yellow { background: rgba(245,200,66,0.14); color: var(--yellow); border: 1px solid rgba(245,200,66,0.3); }
+  .badge-green  { background: rgba(52,201,123,0.14); color: var(--green);  border: 1px solid rgba(52,201,123,0.3); }
+  .badge-purple { background: rgba(124,92,191,0.14); color: var(--purple); border: 1px solid rgba(124,92,191,0.3); }
+
+  /* ── Flow layout ── */
+  .flow-wrapper {
+    display: grid;
+    grid-template-columns: 200px 40px 1fr 40px 220px 40px 1fr;
+    gap: 0;
+    align-items: start;
+    margin-bottom: 56px;
+  }
+
+  /* ── Column labels ── */
+  .col-label {
+    font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--dim);
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  /* Simple 4-column label row */
+  .lane-labels {
+    display: grid;
+    grid-template-columns: 200px 40px 1fr 40px 220px 40px 1fr;
+    margin-bottom: 0;
+  }
+  .lane-labels .col-label:nth-child(2),
+  .lane-labels .col-label:nth-child(4),
+  .lane-labels .col-label:nth-child(6) { border-bottom: none; }
+
+  /* ── Nodes ── */
+  .node {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    position: relative;
+  }
+  .node-title { font-size: 0.82rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+  .node-sub   { font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
+  .node-tag {
+    display: inline-block; margin-top: 8px;
+    font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 2px 7px; border-radius: 3px;
+  }
+
+  .node-source   { border-color: rgba(79,142,247,0.35); background: rgba(79,142,247,0.05); }
+  .node-manual   { border-color: rgba(124,92,191,0.35); background: rgba(124,92,191,0.05); }
+  .node-process  { border-color: rgba(245,200,66,0.4);  background: rgba(245,200,66,0.05); }
+  .node-store    { border-color: rgba(52,201,123,0.4);  background: rgba(52,201,123,0.05); }
+  .node-output   { border-color: rgba(240,135,74,0.4);  background: rgba(240,135,74,0.05); }
+  .node-alert    { border-color: rgba(79,142,247,0.4);  background: rgba(79,142,247,0.06); }
+
+  .tag-source  { background: rgba(79,142,247,0.14); color: var(--accent); }
+  .tag-manual  { background: rgba(124,92,191,0.14); color: var(--purple); }
+  .tag-process { background: rgba(245,200,66,0.14); color: var(--yellow); }
+  .tag-store   { background: rgba(52,201,123,0.14); color: var(--green); }
+  .tag-output  { background: rgba(240,135,74,0.14); color: var(--orange); }
+  .tag-alert   { background: rgba(79,142,247,0.14); color: var(--accent); }
+
+  /* ── Arrow column ── */
+  .arrow-col {
+    display: flex; align-items: center; justify-content: center;
+    padding-top: 18px;
+  }
+  .arrow {
+    display: flex; align-items: center; gap: 0;
+    color: var(--dim); width: 100%;
+  }
+  .arrow-line { flex: 1; height: 1px; background: var(--border); }
+  .arrow-head { font-size: 0.75rem; color: var(--dim); margin-left: -3px; }
+
+  /* ── Sources list ── */
+  .sources-col { display: flex; flex-direction: column; gap: 8px; }
+  .sources-col .node { padding: 10px 12px; }
+
+  /* ── Process + Store col ── */
+  .process-col { display: flex; flex-direction: column; gap: 12px; }
+
+  /* ── Output col ── */
+  .output-col { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── Sub-build sections ── */
+  .subbuild-block {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px 16px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .subbuild-block-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .sb-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 800; flex-shrink: 0;
+  }
+  .sb-1 { background: rgba(79,142,247,0.18); color: var(--accent); border: 1px solid rgba(79,142,247,0.4); }
+  .sb-2 { background: rgba(245,200,66,0.18); color: var(--yellow); border: 1px solid rgba(245,200,66,0.4); }
+  .sb-3 { background: rgba(52,201,123,0.18); color: var(--green);  border: 1px solid rgba(52,201,123,0.4); }
+
+  .sb-title { font-size: 0.9rem; font-weight: 700; }
+  .sb-time  { margin-left: auto; font-size: 0.72rem; color: var(--muted); }
+
+  .sb-done {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.45;
+    padding: 9px 12px;
+    background: var(--surface2); border-radius: 6px;
+    border-left: 2px solid var(--green);
+  }
+  .sb-done strong { color: var(--green); font-weight: 600; }
+
+  /* ── Main flow diagram ── */
+  .flow-section { margin-bottom: 48px; }
+  .flow-section-title {
+    font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--dim);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+  }
+  .flow-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── Full pipeline diagram ── */
+  .pipeline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 12px;
+  }
+
+  .pipe-lane {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 180px;
+    max-width: 220px;
+    flex-shrink: 0;
+  }
+  .pipe-lane-label {
+    font-size: 0.58rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--dim);
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    margin-bottom: 4px; text-align: center;
+  }
+
+  .pipe-arrow {
+    display: flex; align-items: center;
+    padding-top: 24px; /* align with first node */
+    width: 40px; flex-shrink: 0;
+  }
+  .pipe-arrow-inner { display: flex; align-items: center; width: 100%; }
+  .pipe-arrow-line  { flex: 1; height: 1px; background: var(--border); }
+  .pipe-arrow-tip   { color: var(--dim); font-size: 0.7rem; }
+
+  .pipe-arrow-split {
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 0; width: 48px; flex-shrink: 0;
+    gap: 4px; justify-content: center;
+    padding-top: 14px;
+  }
+  .split-line-v { width: 1px; background: var(--border); flex: 1; min-height: 8px; }
+  .split-line-h { height: 1px; background: var(--border); width: 100%; }
+  .split-tip    { color: var(--dim); font-size: 0.7rem; align-self: flex-end; }
+
+  /* ── Schema table ── */
+  .schema-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.75rem; }
+  .schema-table th {
+    text-align: left; padding: 5px 8px; font-size: 0.6rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--dim); border-bottom: 1px solid var(--border);
+  }
+  .schema-table td { padding: 5px 8px; color: var(--muted); border-bottom: 1px solid rgba(46,51,82,0.5); }
+  .schema-table tr:last-child td { border-bottom: none; }
+  .field-name { color: var(--text); font-weight: 600; }
+
+  /* ── Competitor chips ── */
+  .chip-grid { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .chip {
+    font-size: 0.65rem; padding: 2px 8px; border-radius: 3px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  /* ── Publication list ── */
+  .pub-list { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+  .pub-item {
+    font-size: 0.73rem; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pub-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0;
+  }
+
+  /* ── Schedule badge ── */
+  .schedule-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(245,200,66,0.1); border: 1px solid rgba(245,200,66,0.3);
+    border-radius: 4px; padding: 3px 8px;
+    font-size: 0.65rem; font-weight: 700; color: var(--yellow);
+    margin-top: 8px;
+  }
+
+  .footer { margin-top: 56px; border-top: 1px solid var(--border); padding-top: 16px; color: var(--dim); font-size: 0.75rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="bg-blob bg-blob-0"></div>
+<div class="bg-blob bg-blob-1"></div>
+<div class="bg-blob bg-blob-2"></div>
+
+<!-- ── Header ── -->
+<div class="page-header">
+  <h1>Competitive Intel Tracker — Build Flow</h1>
+  <p>PE thrombectomy competitive landscape · automated weekly monitoring + on-demand briefing</p>
+  <div class="badge-row">
+    <span class="badge badge-blue">3 Sub-builds</span>
+    <span class="badge badge-yellow">~8–11 hrs total</span>
+    <span class="badge badge-purple">Notion · Slack · Claude Code</span>
+    <span style="font-size:0.75rem; color:var(--muted);">Scoped 2026-05-02</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PIPELINE DIAGRAM
+══════════════════════════════════════════════════════ -->
+<div class="flow-section-title">Full pipeline</div>
+
+<div class="pipeline">
+
+  <!-- Lane 1: Sources -->
+  <div class="pipe-lane">
+    <div class="pipe-lane-label">Sources</div>
+
+    <!-- Trade pubs -->
+    <div class="node node-source">
+      <div class="node-title">Trade publications</div>
+      <div class="pub-list">
+        <div class="pub-item"><span class="pub-dot"></span>Endovascular Today</div>
+        <div class="pub-item"><span class="pub-dot"></span>TCTMD</div>
+        <div class="pub-item"><span class="pub-dot"></span>Cardiovascular Business</div>
+        <div class="pub-item"><span class="pub-dot"></span>Cath Lab Digest</div>
+        <div class="pub-item"><span class="pub-dot"></span>Interventional News</div>
+        <div class="pub-item"><span class="pub-dot"></span>MedTech Dive</div>
+      </div>
+      <span class="node-tag tag-source">Automated</span>
+    </div>
+
+    <!-- Manual -->
+    <div class="node node-manual" style="margin-top:8px;">
+      <div class="node-title">Conference notes</div>
+      <div class="node-sub">SCAI, EuroPCR, PERT,<br>TCT, SIR — manual entry</div>
+      <span class="node-tag tag-manual">Manual</span>
+    </div>
+
+    <!-- Q1 seed -->
+    <div class="node node-manual" style="margin-top:8px;">
+      <div class="node-title">Q1 2026 Word tracker</div>
+      <div class="node-sub">One-time seed of<br>historical baseline data</div>
+      <span class="node-tag tag-manual">Seed (once)</span>
+    </div>
+  </div>
+
+  <!-- Arrow 1 -->
+  <div class="pipe-arrow">
+    <div class="pipe-arrow-inner">
+      <div class="pipe-arrow-line"></div>
+      <div class="pipe-arrow-tip">▶</div>
+    </div>
+  </div>
+
+  <!-- Lane 2: Processing -->
+  <div class="pipe-lane" style="min-width:200px; max-width:240px;">
+    <div class="pipe-lane-label">Processing</div>
+
+    <div class="node node-process">
+      <div class="node-title">Monday scanner agent</div>
+      <div class="node-sub">Runs every Monday morning. Searches each publication for tracked competitor names. Extracts: headline, publication, date, one-line summary. Assigns Category + Significance automatically.</div>
+      <div class="schedule-badge">⏱ Weekly · Monday 8am</div>
+      <span class="node-tag tag-process">Sub-build 2</span>
+    </div>
+
+    <div class="node node-process" style="margin-top:8px;">
+      <div class="node-title">Significance classifier</div>
+      <div class="node-sub">High: clearances, acquisitions, pivotal trial results, funding rounds. Medium: commercial updates, pipeline news. Low: general mentions, minor updates.</div>
+      <span class="node-tag tag-process">Auto-tagged</span>
+    </div>
+  </div>
+
+  <!-- Arrow 2 -->
+  <div class="pipe-arrow">
+    <div class="pipe-arrow-inner">
+      <div class="pipe-arrow-line"></div>
+      <div class="pipe-arrow-tip">▶</div>
+    </div>
+  </div>
+
+  <!-- Lane 3: Storage -->
+  <div class="pipe-lane" style="min-width:210px; max-width:250px;">
+    <div class="pipe-lane-label">Storage</div>
+
+    <div class="node node-store">
+      <div class="node-title">Competitive Intel Tracker</div>
+      <div class="node-sub">Notion database — one page per competitor. Browsable by competitor or category.</div>
+      <table class="schema-table">
+        <thead>
+          <tr><th>Field</th><th>Type</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="field-name">Competitor</td><td>Title</td></tr>
+          <tr><td class="field-name">Category</td><td>Select</td></tr>
+          <tr><td class="field-name">Date</td><td>Date</td></tr>
+          <tr><td class="field-name">Significance</td><td>Select</td></tr>
+          <tr><td class="field-name">Source</td><td>URL</td></tr>
+          <tr><td class="field-name">Notes</td><td>Rich text</td></tr>
+        </tbody>
+      </table>
+      <span class="node-tag tag-store">Sub-build 1</span>
+    </div>
+
+    <!-- Competitors -->
+    <div class="node" style="margin-top:8px; padding:12px 14px;">
+      <div class="node-title" style="font-size:0.72rem; margin-bottom:6px;">12 competitors tracked</div>
+      <div class="chip-grid">
+        <span class="chip">Penumbra / BSX</span>
+        <span class="chip">Inari / Stryker</span>
+        <span class="chip">Imperative Vascular</span>
+        <span class="chip">Inquis Medical</span>
+        <span class="chip">AngioDynamics</span>
+        <span class="chip">Endovascular Eng.</span>
+        <span class="chip">Jupiter</span>
+        <span class="chip">Magneto</span>
+        <span class="chip">SonoVascular</span>
+        <span class="chip">Flow Medical</span>
+        <span class="chip">SurModics</span>
+        <span class="chip">Medtronic Liberant</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow 3 (split) -->
+  <div class="pipe-arrow">
+    <div class="pipe-arrow-inner">
+      <div class="pipe-arrow-line"></div>
+      <div class="pipe-arrow-tip">▶</div>
+    </div>
+  </div>
+
+  <!-- Lane 4: Outputs -->
+  <div class="pipe-lane" style="min-width:190px; max-width:220px;">
+    <div class="pipe-lane-label">Outputs</div>
+
+    <div class="node node-alert">
+      <div class="node-title">Slack DM — High significance</div>
+      <div class="node-sub">Fires automatically when scanner writes a High significance entry. Recipient: Faisal only (v1).</div>
+      <span class="node-tag tag-alert">Sub-build 2</span>
+    </div>
+
+    <div class="node node-output" style="margin-top:8px;">
+      <div class="node-title">/intel-brief command</div>
+      <div class="node-sub">Run any time. <code style="font-size:0.68rem; color:var(--orange);">/intel-brief Inari</code> or <code style="font-size:0.68rem; color:var(--orange);">/intel-brief all</code>. Returns structured 1-page summary sorted by recency + significance.</div>
+      <span class="node-tag tag-output">Sub-build 3</span>
+    </div>
+
+    <div class="node node-output" style="margin-top:8px; opacity:0.5;">
+      <div class="node-title" style="font-size:0.75rem;">Board / KOL brief export</div>
+      <div class="node-sub" style="font-size:0.68rem;">Formatted Word or PDF export for quarterly BOD summary. <em>v2 scope.</em></div>
+      <span class="node-tag" style="background:rgba(46,51,82,0.5);color:var(--dim);">v2</span>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     SUB-BUILD DETAILS
+══════════════════════════════════════════════════════ -->
+<div class="flow-section-title" style="margin-top:48px;">Sub-build details</div>
+
+<!-- Sub-build 1 -->
+<div class="subbuild-block" style="border-color:rgba(79,142,247,0.3);">
+  <div class="subbuild-block-header">
+    <span class="sb-num sb-1">1</span>
+    <span class="sb-title">Notion database + seed from Q1 doc</span>
+    <span class="sb-time">2–3 hrs</span>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+    <div>
+      <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--dim);margin-bottom:8px;">What it does</div>
+      <div style="font-size:0.8rem;color:var(--muted);line-height:1.5;">Creates the Notion database with the full schema. Seeds all 12 competitor pages with Q1 2026 historical data from the Word tracker as the baseline — so the database is immediately useful from day one, not empty.</div>
+    </div>
+    <div class="sb-done">
+      <strong>Done when:</strong> every competitor has a populated Notion page with categorised entries. Database is browsable by competitor name and by Category filter.
+    </div>
+  </div>
+</div>
+
+<!-- Sub-build 2 -->
+<div class="subbuild-block" style="border-color:rgba(245,200,66,0.3);">
+  <div class="subbuild-block-header">
+    <span class="sb-num sb-2">2</span>
+    <span class="sb-title">Weekly trade publication scanner + Slack alerts</span>
+    <span class="sb-time">4–6 hrs</span>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+    <div>
+      <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--dim);margin-bottom:8px;">What it does</div>
+      <div style="font-size:0.8rem;color:var(--muted);line-height:1.5;">Scheduled agent runs every Monday. Scans 6 trade publications for any of the 12 tracked competitor names. For each hit: extracts headline, date, publication, and a one-sentence summary. Auto-assigns Category (Financial, Regulatory, Clinical Trial, etc.) and Significance (High / Medium / Low). Writes to Notion. Sends a Slack DM to Faisal for every High significance entry.</div>
+      <div style="margin-top:10px;">
+        <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--dim);margin-bottom:6px;">Publications scanned</div>
+        <div class="pub-list">
+          <div class="pub-item"><span class="pub-dot"></span>Endovascular Today</div>
+          <div class="pub-item"><span class="pub-dot"></span>TCTMD</div>
+          <div class="pub-item"><span class="pub-dot"></span>Cardiovascular Business</div>
+          <div class="pub-item"><span class="pub-dot"></span>Cath Lab Digest</div>
+          <div class="pub-item"><span class="pub-dot"></span>Interventional News</div>
+          <div class="pub-item"><span class="pub-dot"></span>MedTech Dive</div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-done">
+      <strong>Done when:</strong> agent runs without intervention on a Monday, finds at least one competitor mention across the publication list, writes a correctly categorised Notion entry, and a Slack DM fires to Faisal for a High significance test item.
+    </div>
+  </div>
+</div>
+
+<!-- Sub-build 3 -->
+<div class="subbuild-block" style="border-color:rgba(52,201,123,0.3);">
+  <div class="subbuild-block-header">
+    <span class="sb-num sb-3">3</span>
+    <span class="sb-title">On-demand briefing command</span>
+    <span class="sb-time">2 hrs</span>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+    <div>
+      <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--dim);margin-bottom:8px;">What it does</div>
+      <div style="font-size:0.8rem;color:var(--muted);line-height:1.5;">A Claude Code slash command that reads the Notion database and generates a formatted, ready-to-read competitive briefing. Run before a board meeting, a KOL conversation, or when a colleague asks a question. Surfaces High and Medium significance items first, sorted by most recent.</div>
+      <div style="margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:6px;font-family:monospace;font-size:0.75rem;color:#9aa3c2;">
+        /intel-brief Inari<br>
+        /intel-brief all<br>
+        /intel-brief Penumbra
+      </div>
+    </div>
+    <div class="sb-done">
+      <strong>Done when:</strong> running <code>/intel-brief Inari</code> produces a clean, accurate summary of all Inari Notion entries sorted by recency and significance — readable in under 2 minutes.
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     V2 / V3 FEATURES
+══════════════════════════════════════════════════════ -->
+<div class="flow-section-title" style="margin-top:8px;">V2 / V3 features — ordered by what to add first</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:960px;">
+
+  <!-- V2 column -->
+  <div>
+    <div style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+      V2 — Add next
+      <span style="flex:1;height:1px;background:rgba(79,142,247,0.2);"></span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+
+      <div style="background:var(--surface);border:1px solid rgba(79,142,247,0.25);border-radius:9px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+          <span style="font-size:0.82rem;font-weight:700;">Sales team Slack channel alerts</span>
+        </div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.45;padding-left:28px;">Expand Faisal-only DM to a shared #competitive-intel channel. One-line change to Sub-build 2 — immediately useful to the full sales and marketing team.</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid rgba(79,142,247,0.25);border-radius:9px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+          <span style="font-size:0.82rem;font-weight:700;">ClinicalTrials.gov monitoring</span>
+        </div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.45;padding-left:28px;">Weekly scan for new trial registrations, enrollment updates, and completions per competitor. Catches IDE submissions before they hit the trade press.</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid rgba(79,142,247,0.25);border-radius:9px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+          <span style="font-size:0.82rem;font-weight:700;">LinkedIn company page monitoring</span>
+        </div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.45;padding-left:28px;">Scan competitor LinkedIn pages weekly for product launches, hiring surges, and conference posts. Competitors often announce here before issuing a press release.</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid rgba(79,142,247,0.25);border-radius:9px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
+          <span style="font-size:0.82rem;font-weight:700;">Historical data seeding from past Word trackers</span>
+        </div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.45;padding-left:28px;">Load 3–4 prior quarterly trackers into Notion to build a longitudinal dataset. Prerequisite for trend analysis. Files available.</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid rgba(79,142,247,0.25);border-radius:9px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">5</span>
+          <span style="font-size:0.82rem;font-weight:700;">Quarterly trend summary</span>
+        </div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.45;padding-left:28px;">Auto-generated quarterly digest comparing competitor activity Q-over-Q. Replaces the manual Word tracker for the BOD meeting. Shows who is accelerating and what the key moves were.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- V3 column -->
+  <div>
+    <div style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;color:var(--purple);margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+      V3 — Bigger lifts
+      <span style="flex:1;height:1px;background:rgba(124,92,191,0.2);"></span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+
+      <div style="background:var(--surface);border:1px solid rgba(124,92,191,0.25);border-radius:9px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="width:20px;height:20px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--purple);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">6</span>
+          <span style="font-size:0.82rem;font-weight:700;">KOL commentary log</span>
+        </div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.45;padding-left:28px;">Slack command /kol-note [competitor] [note] for capturing field intelligence from KOL conversations in real time — on a conference floor or after a call. Tagged by competitor, stored in Notion.</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid rgba(124,92,191,0.25);border-radius:9px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="width:20px;height:20px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--purple);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">7</span>
+          <span style="font-size:0.82rem;font-weight:700;">AKURA positioning layer</span>
+        </div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.45;padding-left:28px;">After each weekly scan, a second Claude pass maps top competitor moves to AKURA's differentiation points and flags threats or talking-point opportunities. Appended to Notion + included in Slack DM.</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid rgba(124,92,191,0.25);border-radius:9px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="width:20px;height:20px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--purple);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">8</span>
+          <span style="font-size:0.82rem;font-weight:700;">BOD report auto-generation</span>
+        </div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.45;padding-left:28px;">Quarterly auto-generation of a Word doc in the current tracker format, pre-populated from Notion. Ready for Faisal to annotate. Triggered manually 1 week before each BOD meeting.</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid rgba(124,92,191,0.25);border-radius:9px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="width:20px;height:20px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--purple);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">9</span>
+          <span style="font-size:0.82rem;font-weight:700;">Conference abstract monitoring</span>
+        </div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.45;padding-left:28px;">Auto-scan SCAI, PERT, TCT, and SIR abstract portals for competitor mentions when published annually. Complex due to site variability — needs site-specific handling per conference.</div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid rgba(124,92,191,0.25);border-radius:9px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="width:20px;height:20px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--purple);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">10</span>
+          <span style="font-size:0.82rem;font-weight:700;">Published paper parsing</span>
+        </div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.45;padding-left:28px;">When the scanner finds a publication announcement, fetch and parse the paper to extract patient N, primary endpoints, and key results. Store structured data in Notion alongside the announcement entry.</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     FAILURE POINTS
+══════════════════════════════════════════════════════ -->
+<div class="flow-section-title" style="margin-top:48px;">Failure points &amp; mitigations</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;max-width:960px;">
+
+  <!-- Sub-build 2 -->
+  <div>
+    <div style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:6px;">Sub-build 2 — Scanner<span style="flex:1;height:1px;background:rgba(232,92,92,0.2);"></span></div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="background:var(--surface);border:1px solid rgba(232,92,92,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:3px;">1 · Silent zero results</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.4;margin-bottom:5px;">Site changes or paywall blocks scraper — returns nothing with no error.</div>
+        <div style="font-size:0.68rem;color:var(--orange);font-weight:600;">→ Slack DM if 0 entries written across all 6 pubs</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(232,92,92,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:3px;">2 · False positive matches</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.4;margin-bottom:5px;">"Flow" or "Inari" matches unrelated content; junk written to Notion.</div>
+        <div style="font-size:0.68rem;color:var(--orange);font-weight:600;">→ Require competitor name + domain qualifier</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(232,92,92,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:3px;">3 · Significance misclassification</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.4;margin-bottom:5px;">Clearance tagged Medium; routine mention tagged High.</div>
+        <div style="font-size:0.68rem;color:var(--orange);font-weight:600;">→ Include snippet in Slack DM for all High items</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(232,92,92,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:3px;">4 · Duplicate entries</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.4;margin-bottom:5px;">Retry or multi-publication story written twice.</div>
+        <div style="font-size:0.68rem;color:var(--orange);font-weight:600;">→ Deduplicate on Source URL before write</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(232,92,92,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:3px;">5 · Notion/Slack decoupled failure</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.4;margin-bottom:5px;">One side fails silently while the other succeeds.</div>
+        <div style="font-size:0.68rem;color:var(--orange);font-weight:600;">→ Write Notion first; log Slack failure as page comment</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(232,92,92,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:3px;">6 · Scheduler stops firing</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.4;margin-bottom:5px;">Token expiry or task failure; tracker goes stale unnoticed.</div>
+        <div style="font-size:0.68rem;color:var(--orange);font-weight:600;">→ "Last scan" timestamp in Notion + run-complete Slack DM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-build 1 -->
+  <div>
+    <div style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--yellow);margin-bottom:8px;display:flex;align-items:center;gap:6px;">Sub-build 1 — Database<span style="flex:1;height:1px;background:rgba(245,200,66,0.2);"></span></div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="background:var(--surface);border:1px solid rgba(245,200,66,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:3px;">7 · Product synonym misses ⚡ highest leverage</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.4;margin-bottom:5px;">Article says "Lightning Bolt" or "ENGULF" — not "Penumbra" or "E2."</div>
+        <div style="font-size:0.68rem;color:var(--orange);font-weight:600;">→ Synonym dict: Penumbra → CAVT/Lightning Bolt/Flash; Inari → FlowTriever/PEERLESS/Artix; Imperative → Symphony; E2 → Hēlo/ENGULF; Jupiter → SPIRARE</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(245,200,66,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:3px;">8 · Schema drift → malformed writes</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.4;margin-bottom:5px;">Someone renames a Notion property; scanner writes fail silently.</div>
+        <div style="font-size:0.68rem;color:var(--orange);font-weight:600;">→ Validate schema at run start; skip + warn if property missing</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-build 3 -->
+  <div>
+    <div style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);margin-bottom:8px;display:flex;align-items:center;gap:6px;">Sub-build 3 — /intel-brief<span style="flex:1;height:1px;background:rgba(52,201,123,0.2);"></span></div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="background:var(--surface);border:1px solid rgba(52,201,123,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:3px;">9 · Stale data presented as current</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.4;margin-bottom:5px;">Scanner hasn't run; /intel-brief returns old entries with no age indicator.</div>
+        <div style="font-size:0.68rem;color:var(--orange);font-weight:600;">→ "Last scan: [date]" as first line; flag if &gt;14 days old</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(52,201,123,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:3px;">10 · Notion pagination miss</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.4;margin-bottom:5px;">API returns only first 100 entries; busy competitors silently truncated.</div>
+        <div style="font-size:0.68rem;color:var(--orange);font-weight:600;">→ Paginate all queries via next_cursor; never assume first page is complete</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Competitive Intel Tracker &nbsp;·&nbsp; Akura Medical &nbsp;·&nbsp; Scoped 2026-05-02</div>
+
+</body>
+</html>

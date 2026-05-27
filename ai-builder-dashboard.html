@@ -1116,7 +1116,479 @@ Format both as a clean document I can share with the team.</div>
       <span class="plan-out-item">Production-ready code</span>
     </div>
   </div>
+
+  <div class="plan-card" style="margin-top: 16px;">
+    <div class="plan-card-header">
+      <span class="plan-card-title">Competitive Intel Tracker</span>
+      <span class="plan-badge">Scoped</span>
+      <span class="priority priority-medium" style="margin-left:4px;">Medium</span>
+    </div>
+    <p class="plan-what">A living Notion database organized by competitor — covering financials, FDA clearances, clinical trials, commercial activity, funding, pipeline, and conference activity — updated weekly by a Claude agent scanning six interventional trade publications (Endovascular Today, TCTMD, Cardiovascular Business, Cath Lab Digest, Interventional News, MedTech Dive). High-significance items trigger a Slack DM to Faisal. Any teammate can run an on-demand briefing before a board meeting or KOL conversation. Conference notes added manually. Competitors: Penumbra/BSX, Inari/Stryker, Imperative Vascular, Inquis, AngioDynamics, Endovascular Engineering, Jupiter, Magneto, SonoVascular, Flow Medical, SurModics, Medtronic Liberant.</p>
+
+    <div class="plan-section-label">Sub-builds</div>
+    <div class="plan-subbuilds">
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">1</span>
+          <span class="plan-subbuild-name">Notion database + seed from Q1 doc</span>
+          <span class="plan-subbuild-time">2–3 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Create Notion database with schema (Competitor, Category, Date, Significance, Source URL, Notes). Seed all 12 competitors from the Q1 2026 Word tracker as baseline. <strong>Done when:</strong> every competitor has a populated page with categorised entries, browsable by competitor or category.</div>
+      </div>
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">2</span>
+          <span class="plan-subbuild-name">Weekly trade publication scanner + Slack alerts</span>
+          <span class="plan-subbuild-time">4–6 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Scheduled Monday agent scans Endovascular Today, TCTMD, Cardiovascular Business, Cath Lab Digest, Interventional News, and MedTech Dive for competitor mentions. Writes new entries to Notion with Category and Significance. Sends Slack DM to Faisal for High significance items. <strong>Done when:</strong> agent runs without intervention, writes at least one entry from a live source, and a Slack DM fires for a High significance test item.</div>
+      </div>
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">3</span>
+          <span class="plan-subbuild-name">On-demand briefing command</span>
+          <span class="plan-subbuild-time">2 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Claude Code command (/intel-brief [competitor or "all"]) reads Notion and generates a structured 1-page briefing with most recent High/Medium items surfaced first. <strong>Done when:</strong> /intel-brief Inari produces a clean, accurate summary sorted by recency and significance.</div>
+      </div>
+    </div>
+
+    <div class="plan-section-label">Starting prompt — Sub-build 1</div>
+    <div class="plan-prompt">I want to build a competitive intelligence Notion database for the PE thrombectomy space.
+
+Using the Notion MCP, create a new database called "Competitive Intel Tracker" with these properties:
+- Competitor (title)
+- Category (select: Financial, Regulatory, Clinical Trial, Commercial, Funding, Pipeline, Conference, Legal)
+- Date (date)
+- Significance (select: High, Medium, Low)
+- Source (URL)
+- Notes (rich text)
+
+Then seed it with the following competitors as pages (one page per competitor):
+Penumbra / BSX, Inari / Stryker, Imperative Vascular, Inquis Medical,
+AngioDynamics, Endovascular Engineering, Jupiter Endovascular,
+Magneto Thrombectomy, SonoVascular, Flow Medical,
+SurModics (Pounce), Medtronic (Liberant)
+
+Confirm the database ID once created so I can use it in the next step.</div>
+
+    <div class="plan-section-label">V2 / V3 Features — ordered by what to add first</div>
+    <div style="display:flex; flex-direction:column; gap:8px; margin-top:2px;">
+
+      <div style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-top:4px;margin-bottom:2px;">V2 — Add next</div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">Sales team Slack channel alerts</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Expand from Faisal-only DM to a shared #competitive-intel channel. One-line change to Sub-build 2 — makes the tracker useful to the full sales and marketing team immediately.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">ClinicalTrials.gov monitoring</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Weekly scan for new trial registrations, enrollment updates, and completions per competitor. Catches IDE submissions and trial opens before they hit the trade press.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">LinkedIn company page monitoring</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Weekly scan of competitor LinkedIn pages for product launches, hiring surges (signals commercial expansion), and conference announcements. Competitors often post here before issuing a press release.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">4</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">Historical data seeding from past Word trackers</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Load prior quarterly trackers into Notion to build a longitudinal dataset. Prerequisite for trend analysis. Faisal has 3–4 quarters of past trackers available.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">5</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">Quarterly trend summary</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Auto-generated quarterly digest comparing competitor activity Q-over-Q. Replaces the manual Word tracker for the BOD meeting. Shows which competitors are accelerating and what the key moves were.</div></div>
+      </div>
+
+      <div style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--purple);margin-top:8px;margin-bottom:2px;">V3 — Bigger lifts</div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--accent2);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">6</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">KOL commentary log</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Slack slash command (/kol-note [competitor] [note]) for capturing field intelligence from KOL conversations in real time — on a conference floor or after a call. Tagged by competitor, stored in Notion, searchable.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--accent2);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">7</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">AKURA positioning layer</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">After each weekly scan, a second Claude pass maps the top competitor moves to AKURA's differentiation points and flags threats or talking-point opportunities. Output appended to Notion entry and included in the Slack DM.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--accent2);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">8</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">BOD report auto-generation</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Quarterly auto-generation of a Word doc in the same format as the current manual tracker, pre-populated from Notion, ready for Faisal to annotate. Triggered manually 1 week before each BOD meeting.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--accent2);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">9</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">Conference abstract monitoring</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Auto-scan SCAI, PERT, TCT, and SIR abstract portals (when published) for competitor mentions. Complex due to site variability — needs site-specific handling per conference.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--accent2);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">10</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">Published paper parsing</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">When the scanner finds a publication announcement, fetch and parse the paper to extract patient N, primary endpoints, and key results. Store structured data in Notion alongside the announcement entry.</div></div>
+      </div>
+
+    </div>
+
+    <div class="plan-section-label" style="margin-top:20px;">Failure points &amp; mitigations</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+
+      <div style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--orange);margin-top:2px;margin-bottom:2px;">Sub-build 2 — Weekly scanner (highest risk)</div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Publication site structure changes → silent zero results</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> If zero new entries written across all 6 publications, fire a Slack DM: "Scanner returned 0 results — manual check needed." Zero is never valid.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">False positive competitor matches → junk in Notion</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Require competitor name + at least one domain qualifier (thrombectomy, PE, pulmonary embolism, DVT, venous, catheter) to qualify a hit.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Significance misclassification → wrong priority acted on</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> For every High entry, include the article headline + one-sentence snippet in the Slack DM so Faisal can verify in 5 seconds.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">4</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Duplicate entries on retry or multi-publication story</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Before writing, check Notion for an existing row with the same Source URL. Skip if found.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">5</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Notion writes but Slack fails (or vice versa)</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Write Notion first, then Slack. If Slack fails, log a comment on the Notion entry. Notion is source of truth — Slack is notification only.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">6</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Scheduler silently stops firing</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Every run writes a "Last scan" timestamp to a Notion metadata page. Every run ends with a Slack DM confirming count. Silence on Monday is the alert.</div></div>
+      </div>
+
+      <div style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--yellow);margin-top:8px;margin-bottom:2px;">Sub-build 1 — Notion database</div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(245,200,66,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(245,200,66,0.12);color:var(--yellow);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">7</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Competitor product name misses (highest-leverage fix)</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Synonym dictionary — Penumbra → Lightning Bolt/Flash/CAVT/STORM-PE; Inari → FlowTriever/PEERLESS/Artix; Imperative → Symphony; E2 → Hēlo/ENGULF; Jupiter → SPIRARE.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(245,200,66,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(245,200,66,0.12);color:var(--yellow);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">8</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Notion schema drift → silent malformed writes</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Scanner validates all expected properties exist at start of each run. Missing property → log warning to Notion, skip write.</div></div>
+      </div>
+
+      <div style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);margin-top:8px;margin-bottom:2px;">Sub-build 3 — /intel-brief</div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(52,201,123,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(52,201,123,0.12);color:var(--green);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">9</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Stale data presented as current</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Print "Last scan: [date]" as first line of every briefing. Flag prominently if last scan was more than 14 days ago.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(52,201,123,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(52,201,123,0.12);color:var(--green);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">10</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Notion pagination miss → briefing silently incomplete</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Explicitly paginate all Notion queries using next_cursor. Never assume the first page of results is complete.</div></div>
+      </div>
+
+    </div>
+  </div>
 </div>
+
+  <!-- Conference Intel Processing plan card -->
+  <div class="plan-card" style="margin-top:20px;">
+    <div class="plan-card-header">
+      <span class="plan-card-title">Conference Intel Processing</span>
+      <span class="plan-badge">Scoped</span>
+      <span class="priority priority-medium" style="margin-left:4px;">Medium</span>
+    </div>
+    <p class="plan-what">Takes a running Outlook draft and photos of handwritten notes accumulated throughout a cardiology conference like EuroPCR. Claude reads the handwriting directly via vision API, merges it with the Outlook draft in a single pass, and produces a polished, audience-segmented intel email with embedded action items — ready to send before landing. A second pass extracts action items and creates Notion follow-up tasks with function-level owners. Input: Outlook draft text + optional photos of handwritten notes. Output: one clean cross-functional email + Notion tasks.</p>
+
+    <div class="plan-section-label">Sub-builds</div>
+    <div class="plan-subbuilds">
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">1</span>
+          <span class="plan-subbuild-name">Draft Cleaner + Structured Summary</span>
+          <span class="plan-subbuild-time">1–2 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Paste raw Outlook draft + attach photos of handwritten notes → Claude transcribes handwriting (vision API), merges with draft, cleans prose, groups by theme (Clinical Feedback, Competitive Intel, Product Strategy, Regulatory, Action Items), tags each action item by function. <strong>Done when:</strong> structured document returned in under 5 min, reviewable before edits.</div>
+      </div>
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">2</span>
+          <span class="plan-subbuild-name">Audience-Segmented Email Generator</span>
+          <span class="plan-subbuild-time">1–2 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Takes structured summary → produces single polished email with clear sections per audience (Leadership, Sales, R&D, Regulatory, Clinical). <strong>Done when:</strong> draft copyable into Outlook and sendable as-is.</div>
+      </div>
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">3</span>
+          <span class="plan-subbuild-name">Follow-up Task Creator</span>
+          <span class="plan-subbuild-time">2–3 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Extracts action items from summary → writes Notion tasks with owner (by function) and due date 5 business days post-conference. <strong>Done when:</strong> tasks appear in Notion immediately after summary approval.</div>
+      </div>
+    </div>
+
+    <div class="plan-section-label">Starting prompt — Sub-build 1</div>
+    <div class="plan-prompt">You are helping me process raw conference notes from [conference name]. Below is a draft email I built up throughout the meeting — it's unpolished, has bullets mixed with prose, and covers multiple topics.
+
+Please:
+1. Clean up the writing (fix grammar, remove repetition)
+2. Group insights into these themes: Clinical/Physician Feedback, Competitive Intel, Product Strategy, Regulatory, Action Items
+3. Under Action Items, tag each item with the relevant function: Leadership / Sales / R&D / Regulatory / Clinical
+4. Keep the tone professional but direct — this goes to a cross-functional team
+
+Here are my raw notes:
+[paste your Outlook draft here]</div>
+
+    <div class="plan-section-label">Out of v1</div>
+    <div class="plan-out">
+      <span class="plan-out-item">Voice memo transcription</span>
+      <span class="plan-out-item">Auto-send without review</span>
+      <span class="plan-out-item">CRM logging</span>
+      <span class="plan-out-item">Real-time capture</span>
+    </div>
+  </div>
+
+  <!-- Sales CRM Automation plan card -->
+  <div class="plan-card" style="margin-top:20px;">
+    <div class="plan-card-header">
+      <span class="plan-card-title">Sales CRM Automation</span>
+      <span class="plan-badge">Scoped</span>
+      <span class="priority priority-high" style="margin-left:4px;">High</span>
+    </div>
+    <p class="plan-what">Fully automated post-meeting pipeline — no manual data entry. Zoom AI email arrives → Power Automate triggers Claude → Claude in Chrome saves Outlook draft to site contact → SharePoint MCP writes CRM row update directly (appends meeting notes, updates next steps/owner/due date/engagement score) → CRM save triggers dashboard auto-refresh on SharePoint. Colleen's only actions: review and send the Outlook draft; copy action items to Slack. No copy-paste, no spreadsheet opens, no script runs. 35 sites · IN / Above / Out funnel. Prerequisite: Colleen enables Zoom cloud recording.</p>
+
+    <div class="plan-section-label">Sub-builds</div>
+    <div class="plan-subbuilds">
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">1</span>
+          <span class="plan-subbuild-name">Restructure CRM + move to SharePoint</span>
+          <span class="plan-subbuild-time">~2 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">15 focused columns including new Milestones, Engagement Score, Last Contact Date, Next Step Owner, Next Step Due Date. Migrate all 35 rows. Simplicity is a design requirement. Save CRM_v2.xlsx to shared SharePoint. <strong>Done when:</strong> Colleen opens from SharePoint, all data intact, can update any row in under 2 minutes.</div>
+      </div>
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">2</span>
+          <span class="plan-subbuild-name">Zoom email auto-processing + Outlook draft + direct CRM write</span>
+          <span class="plan-subbuild-time">~6 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Power Automate triggers on Zoom AI email. Claude reads summary + optional handwritten photos. (1) Chrome → Outlook Web: saves pre-filled follow-up email as draft. (2) Generates per-person Slack action item blocks. (3) SharePoint MCP: finds the site row in CRM_v2.xlsx, prepends meeting notes, updates Next Steps / Owner / Due Date / Last Contact Date / Engagement Score, re-uploads. CRM save triggers dashboard refresh. If site name can't be matched, alerts Colleen rather than writing silently. <strong>Done when:</strong> Zoom email arrives → Outlook draft saved + CRM row updated + dashboard refreshed — Colleen opens Outlook and finds the draft ready, nothing else needed.</div>
+      </div>
+      <div class="plan-subbuild">
+        <div class="plan-subbuild-header">
+          <span class="plan-subbuild-num">3</span>
+          <span class="plan-subbuild-name">Auto-refreshing dual-view SharePoint dashboard</span>
+          <span class="plan-subbuild-time">~5 hrs</span>
+        </div>
+        <div class="plan-subbuild-done">Python script reads CRM_v2.xlsx → generates HTML with ops view (per-site cards, cold-risk flagging) and board view (pipeline counts, milestone rates, deployment trajectory). Power Automate triggers the script when CRM_v2.xlsx is saved — no manual run. Uploads to SharePoint. <strong>Done when:</strong> Colleen saves the CRM → dashboard link reflects the update within 5 minutes, no action required by anyone.</div>
+      </div>
+    </div>
+
+    <div class="plan-section-label">Starting prompt — Sub-build 1</div>
+    <div class="plan-prompt">I need to restructure a sales CRM spreadsheet at C:\Users\fkhan\Downloads\CRM.xlsx.
+
+The current file has 23 columns and 35 site rows on the "Early Deployment Targets" tab.
+Simplicity is a design requirement — the team must be able to update it in under
+2 minutes per site. Users: Colleen, Kavi, Faisal, Craig.
+
+Keep these columns (consolidating where needed):
+- Facility Name
+- Funnel Stage (IN / Above / Out)
+- Target Type
+- Engagement Score (Hot / Warm / Cold / Out) — new, blank for now
+- Milestones — new, blank for now
+- Physician Champion (name + specialty, consolidated)
+- Physician Contact
+- Admin / Exec Contact (name + title, consolidated)
+- Admin Contact Info
+- Meetings &amp; Dates
+- Meeting Notes (most recent first)
+- Next Steps
+- Next Step Owner (Colleen / Kavi / Faisal / Craig / Margaret / Praveen)
+- Next Step Due Date — new, blank for now
+- Last Contact Date — extract from meeting dates where possible
+
+Migrate all existing data. Save as CRM_v2.xlsx in C:\Users\fkhan\Downloads\.
+Preserve all cell content — do not summarize or truncate any notes or next steps.</div>
+
+    <div class="plan-section-label">Starting prompt — Sub-build 2</div>
+    <div class="plan-prompt">Build an automated workflow that processes Zoom Native AI Companion
+meeting summary emails from Colleen's Outlook inbox and handles all
+post-meeting outputs without her needing to copy or paste anything.
+
+1. TRIGGER
+   Use the Microsoft 365 Outlook MCP to watch Colleen's inbox for Zoom AI
+   Companion emails (subject: "Meeting Summary:" / sender: zoom@zoom.us).
+   When one arrives, start processing automatically.
+
+2. PROCESS
+   Parse the email body (Quick recap / Next steps / Summary sections).
+   If handwritten note photos are attached, read via vision and merge.
+
+2b. SITE MEETING GATE (A+C filter)
+   Extract all site/facility names from Quick recap and Summary.
+   Fuzzy-match against Facility Name column in CRM_v2.xlsx.
+   - Confident match: proceed to step 3.
+   - No confident match: log "Skipped: [subject] — [date]" to
+     skipped-meetings.txt. Stop. Do not alert Colleen.
+   - Multiple sites found (2+): log both to text file for manual
+     processing. Stop. Do not proceed.
+
+3. OUTLOOK DRAFT (via Claude in Chrome)
+   Open Outlook Web (outlook.office.com/mail) using Claude in Chrome.
+   Compose a new email:
+   - To: site physician contact (extract from Next steps or CRM_v2.xlsx)
+   - Subject: Follow-up: [meeting topic / site name]
+   - Body: Professional, 150 words max — summarize meeting, confirm next steps
+   Save as draft. Do not send.
+
+4. ACTION ITEMS OUTPUT
+   Per-person blocks for: Colleen, Kavi, Faisal, Craig.
+   Source: "Next steps" section (already per-person in Zoom format).
+   Format: [action] — [due date or "this week"]
+   Write to a text file formatted for Slack copy-paste.
+
+5. DIRECT CRM WRITE (via SharePoint MCP)
+   a. Download CRM_v2.xlsx from SharePoint.
+   b. Match site name from the Zoom summary to an existing row (fuzzy match).
+      If no confident match: write field values to text file and alert Colleen.
+   c. Update the matched row:
+      - Meeting Notes: prepend "[date]: [2–3 sentence summary]" to existing
+      - Next Steps: replace with new next steps from Zoom summary
+      - Next Step Owner: update
+      - Next Step Due Date: extract from summary or default to +7 days
+      - Last Contact Date: today's date
+      - Engagement Score: update only if meeting clearly indicates a change
+      - Milestones: update only if explicitly mentioned
+   d. Save and re-upload CRM_v2.xlsx to SharePoint.
+      This triggers Power Automate → dashboard auto-refresh (Sub-build 3).
+
+Test end-to-end with a real Zoom AI summary from Colleen's Outlook inbox.
+Verify: correct CRM row updated, Outlook draft saved, dashboard refreshed.</div>
+
+    <div class="plan-section-label" style="margin-top:20px;">V2 / V3 Features — ordered by what to add first</div>
+    <div style="display:flex; flex-direction:column; gap:8px; margin-top:2px;">
+
+      <div style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-top:4px;margin-bottom:2px;">V2 — Add next</div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">Due-date reminder alerts</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">When a Next Step Due Date passes without a CRM update, a Slack DM fires to the Next Step Owner. A scheduled check against the spreadsheet — directly prevents sites going dark between Monday reviews.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">Field team quick-update command</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Margaret and Praveen appear in next steps constantly but have no structured input channel. A Slack /site-update [site] [note] command appends their field intel to the right CRM row with a timestamp. Keeps observations in the system instead of lost in text messages.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(79,142,247,0.15);color:var(--accent);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">One-click Slack action item posting</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">In v1 Colleen copies action item blocks into Slack manually. A small script posts them directly — each person gets a Slack DM with only their items. Removes the last manual step in the post-meeting workflow.</div></div>
+      </div>
+
+      <div style="font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent2);margin-top:8px;margin-bottom:2px;">V3 — Bigger lifts</div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--accent2);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">4</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">Milestone-based deployment forecast</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Use milestone completions and time-in-stage history to project which sites are on track to deploy by end of 2026. Upgrades the board view from snapshot to trajectory: "X of 35 on track, Y at risk." Needs 2–3 months of milestone data first.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--accent2);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">5</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">Sales cycle analytics</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">Track time-in-stage per site (Above → IN → active). Surface which engagement patterns lead to faster conversion and which sites are stalling. Meaningful only after 3–6 months of structured CRM data.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:50%;background:rgba(124,92,191,0.15);color:var(--accent2);font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">6</span>
+        <div><div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">CRM platform migration</div><div style="font-size:0.72rem;color:var(--muted);line-height:1.4;">If the commercial team grows or investor requirements demand a proper audit trail, the 15-column CRM_v2.xlsx maps cleanly to standard HubSpot or Salesforce fields. The Sub-build 1 structure was designed with this migration in mind.</div></div>
+      </div>
+
+    </div>
+
+    <div class="plan-section-label" style="margin-top:20px;">Out of v1</div>
+    <div class="plan-out">
+      <span class="plan-out-item">Automated Slack posting (output only)</span>
+      <span class="plan-out-item">Multi-user CRM conflict resolution</span>
+      <span class="plan-out-item">Real-time dashboard sync</span>
+      <span class="plan-out-item">Sales cycle duration tracking</span>
+      <span class="plan-out-item">Usage pattern data</span>
+      <span class="plan-out-item">HubSpot / Salesforce migration</span>
+    </div>
+
+    <div class="plan-section-label" style="margin-top:20px;">Failure points &amp; mitigations</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+
+      <div style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--orange);margin-top:2px;margin-bottom:2px;">Sub-build 2 — Processing + CRM write (highest risk)</div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Wrong CRM row matched — writes to wrong site's data</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Log matched row + top 2 runner-up candidates to output file every run. Colleen sees "Matched: Mount Sinai (confidence: high / runner-up: Montefiore)" and can catch a bad match before Monday.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Meeting Notes overwritten instead of prepended — data loss</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Append-only logic. After writing, verify old content still exists in the cell. If missing, abort the upload and send Colleen the intended update as a text file.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Partial CRM write — CRM left in inconsistent state</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Download → modify all fields in memory → upload once. If any step errors before upload, discard entirely and alert Colleen. Never write partial changes to the file.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">4</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Trigger fires but Claude fails silently — no outputs, Colleen unaware</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Every Zoom AI email must produce a Slack DM to Colleen within 10 minutes ("Meeting processed ✓ — draft saved, CRM updated"). No DM = something failed.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">5</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Outlook draft with wrong or blank recipient — email reaches wrong person</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Never guess an email address. If no contact extracted with confidence, create draft with [CONTACT NEEDED] in the To field. Colleen fills in before sending.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">6</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Zoom email format changes — section parsing breaks silently</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Detect section headers case-insensitively ("recap", "next steps", "summary"). If none found, abort and forward the raw email to Colleen with a note that processing failed.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">7</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Concurrent CRM edit / SharePoint file lock — write fails or corrupts</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Check for file lock before writing. Retry ×2 at 2-minute intervals. If still locked on third attempt, write all outputs to text file and alert Colleen.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">8</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Multi-site meeting — Claude writes to one site, misses the other</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> If 2+ site names detected in summary, flag for manual update. Output CRM fields for all detected sites to text file. Do not attempt any automated write.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">9</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Duplicate trigger — two Outlook drafts sent to same contact</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Extract Zoom meeting ID from the email. If same ID processed in last 24 hours, skip and log. Do not re-process.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(232,92,92,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(232,92,92,0.15);color:var(--red);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">10</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Non-site meeting slips past the behavioral gate</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> CRM name match is the automatic backstop (Option C). Low-confidence match = skip silently, log to skipped-meetings.txt. High confidence required to proceed. No alert to Colleen.</div></div>
+      </div>
+
+      <div style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--yellow);margin-top:8px;margin-bottom:2px;">Sub-build 3 — Dashboard</div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(245,200,66,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(245,200,66,0.12);color:var(--yellow);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">11</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Script crashes on unexpected CRM data — stale dashboard with no alert</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Wrap entire script in try/except. On crash: keep previous dashboard version live, send Slack alert to Faisal with error details. Never serve a blank or broken page.</div></div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border:1px solid rgba(245,200,66,0.2);border-radius:7px;">
+        <span style="min-width:18px;height:18px;border-radius:3px;background:rgba(245,200,66,0.12);color:var(--yellow);font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">12</span>
+        <div><div style="font-size:0.78rem;font-weight:700;margin-bottom:2px;">Dashboard SharePoint link changes — bookmarks break silently</div><div style="font-size:0.71rem;color:var(--muted);line-height:1.4;"><strong style="color:var(--orange);">Fix:</strong> Agree on a stable SharePoint folder path before deployment. Document the URL in the team wiki. Never move or rename the file without updating all links.</div></div>
+      </div>
+
+    </div>
+  </div>
 
 </body>
 </html>
